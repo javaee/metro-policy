@@ -26,6 +26,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>com.sun.istack</groupId>
+            <artifactId>istack-commons-tools</artifactId>
+            <version>1.1-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>3.8.1</version>
@@ -49,10 +55,11 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <mkdir dir="${project.build.directory}/generated-sources"/>
-                                <!--ant dir="${basedir}/rt" target="resgen">
+                                <ant dir="${basedir}" target="resgen">
+                                    <property name="resgen.classpath" refid="maven.compile.classpath"/>
+                                    <property name="src.dir" value="${basedir}/src/main/java"/>
                                     <property name="build.gen-src.dir" value="${project.build.directory}/generated-sources"/>
-                                </ant-->
+                                </ant>
                             </tasks>
                             <sourceRoot>
                                 ${project.build.directory}/generated-sources
