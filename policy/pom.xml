@@ -4,13 +4,15 @@
     <groupId>com.sun.xml.ws</groupId>
     <artifactId>policy</artifactId>
     <packaging>jar</packaging>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.2-SNAPSHOT</version>
     <name>policy</name>
     <url>https://policy.dev.java.net/</url>
+    
     <organization>
         <name>Sun Microsystems, Inc.</name>
         <url>http://www.sun.com/</url>
     </organization>
+    
     <licenses>
         <license>
             <name>CDDL</name>
@@ -18,6 +20,7 @@
             <distribution>repo</distribution>
         </license>
     </licenses>
+    
     <dependencies>
         <dependency>
             <groupId>stax</groupId>
@@ -44,6 +47,21 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+    
+    <scm>
+        <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:policy/policy</connection>
+        <developerConnection>scm:cvs:pserver:ritzmann@cvs.dev.java.net:/cvs:policy/policy</developerConnection>
+        <url>https://policy.dev.java.net/source/browse/policy/policy</url>
+    </scm>
+    
+    <distributionManagement>
+        <repository>
+            <uniqueVersion>false</uniqueVersion>
+            <id>java.net-maven2-repository</id>
+            <url>java-net:/maven2-repository/trunk/www/repository/</url>
+        </repository>
+    </distributionManagement>
+    
     <build>
         <plugins>
             <plugin>
@@ -54,6 +72,7 @@
                     <target>1.5</target>
                 </configuration>
             </plugin>
+            
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
                 <dependencies>
@@ -85,5 +104,13 @@
                 </executions>
             </plugin>
         </plugins>
+        
+        <extensions>
+            <extension>
+                <groupId>org.jvnet.wagon-svn</groupId>
+                <artifactId>wagon-svn</artifactId>
+                <version>1.6</version>
+            </extension>
+        </extensions>
     </build>
 </project>
