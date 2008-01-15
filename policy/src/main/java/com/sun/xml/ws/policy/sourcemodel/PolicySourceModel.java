@@ -41,7 +41,8 @@ import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
 import com.sun.xml.ws.policy.privateutil.PolicyUtils;
-import com.sun.xml.ws.rm.RMVersion;
+import com.sun.xml.ws.policy.spi.PrefixMapper;
+//import com.sun.xml.ws.rm.RMVersion;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,6 +67,14 @@ public final class PolicySourceModel implements Cloneable {
     private static final Map<String, String> defaultNamespaceToPrefixMap = new HashMap<String, String>();
 
     static {
+        
+        PrefixMapper[] prefixMappers = PolicyUtils.ServiceProvider.load(PrefixMapper.class);
+        if (prefixMappers != null) {
+            for (PrefixMapper mapper: prefixMappers) {
+                defaultNamespaceToPrefixMap.putAll(mapper.getMap());
+            }
+        }
+        
         for (NamespaceVersion version : NamespaceVersion.values()) {
             defaultNamespaceToPrefixMap.put(version.toString(), version.getDefaultNamespacePrefix());
         }
@@ -73,6 +82,8 @@ public final class PolicySourceModel implements Cloneable {
 
 //        defaultNamespaceToPrefixMap.put(com.sun.xml.ws.encoding.policy.EncodingConstants.OPTIMIZED_MIME_NS, "");
 //        defaultNamespaceToPrefixMap.put(com.sun.xml.ws.encoding.policy.EncodingConstants.ENCODING_NS, "");
+        
+        /**
         defaultNamespaceToPrefixMap.put(com.sun.xml.ws.encoding.policy.EncodingConstants.SUN_ENCODING_CLIENT_NS, "cenc");
         defaultNamespaceToPrefixMap.put(com.sun.xml.ws.encoding.policy.EncodingConstants.SUN_FI_SERVICE_NS, "fi");
 
@@ -103,6 +114,7 @@ public final class PolicySourceModel implements Cloneable {
         defaultNamespaceToPrefixMap.put(com.sun.xml.ws.api.addressing.AddressingVersion.W3C.nsUri, "wsaw3c");
 
         defaultNamespaceToPrefixMap.put(com.sun.xml.ws.tx.common.Constants.WSAT_SOAP_NSURI, "wsat");
+         */
     }
     private ModelNode rootNode;
     private String policyId;
