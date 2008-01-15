@@ -26,12 +26,6 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.istack</groupId>
-            <artifactId>istack-commons-tools</artifactId>
-            <version>1.1-SNAPSHOT</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>com.sun.xml.txw2</groupId>
             <artifactId>txw2</artifactId>
             <version>20070624</version>
@@ -56,6 +50,13 @@
             </plugin>
             <plugin>
                 <artifactId>maven-antrun-plugin</artifactId>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.sun.istack</groupId>
+                        <artifactId>istack-commons-buildtools</artifactId>
+                        <version>1.1-SNAPSHOT</version>
+                    </dependency>
+                </dependencies>
                 <executions>
                     <execution>
                         <phase>generate-sources</phase>
@@ -64,11 +65,11 @@
                                 <ant dir="${basedir}" target="resgen">
                                     <property name="resgen.classpath" refid="maven.compile.classpath"/>
                                     <property name="src.dir" value="${basedir}/src/main/java"/>
-                                    <property name="build.gen-src.dir" value="${project.build.directory}/generated-sources"/>
+                                    <property name="build.gen-src.dir" value="${project.build.directory}/generated-sources/ant"/>
                                 </ant>
                             </tasks>
                             <sourceRoot>
-                                ${project.build.directory}/generated-sources
+                                ${project.build.directory}/generated-sources/ant
                             </sourceRoot>
                         </configuration>
                         <goals>

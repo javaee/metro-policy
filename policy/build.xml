@@ -36,14 +36,11 @@
  holder.
 -->
 
-
-<!-- You may freely edit this file. See commented blocks below for -->
-<!-- some examples of how to customize the build. -->
-<!-- (If you delete it and reopen the project it will be recreated.) -->
 <project name="policy" default="resgen" basedir=".">
+    
     <target name="resgen"
             description="Generate class wrappers for all property files that contain localizable messages">
-        <taskdef name="resgen" classname="com.sun.istack.tools.ResourceGenTask">
+        <taskdef name="resgen" classname="com.sun.istack.build.ResourceGenTask">
             <classpath>
                 <pathelement path="${resgen.classpath}"/>
             </classpath>
