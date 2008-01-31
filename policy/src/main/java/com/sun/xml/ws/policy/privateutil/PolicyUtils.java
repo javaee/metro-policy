@@ -36,6 +36,7 @@
 
 package com.sun.xml.ws.policy.privateutil;
 
+import com.sun.xml.ws.policy.PolicyException;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -347,14 +348,15 @@ public final class PolicyUtils {
          * @param configFileIdentifier the string used to generate the config file URL that will be parsed. Each WSIT config
          *        file is in form of <code>wsit-<i>{configFileIdentifier}</i>.xml</code>. Must not be {@code null}.
          * @return generated config file resource name
+         * @throw PolicyException If configFileIdentifier is null.
          */
-        public static String generateFullName(final String configFileIdentifier) {
+        public static String generateFullName(final String configFileIdentifier) throws PolicyException {
             if (configFileIdentifier != null) {
                 final StringBuffer buffer = new StringBuffer("wsit-");
                 buffer.append(configFileIdentifier).append(".xml");
                 return buffer.toString();
             } else {
-                return "wsit.xml"; //TODO: throw exception instead
+                throw new PolicyException(LocalizationMessages.WSP_0080_IMPLEMENTATION_EXPECTED_NOT_NULL());
             }
         }
         

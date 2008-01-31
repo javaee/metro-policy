@@ -36,6 +36,7 @@
 
 package com.sun.xml.ws.policy.privateutil;
 
+import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.spi.PolicyAssertionCreator;
 import java.io.Closeable;
 import javax.xml.stream.XMLStreamReader;
@@ -250,12 +251,25 @@ public class PolicyUtilsTest extends TestCase {
     /**
      * Test of generateFullName method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
      */
-    public void testConfigFileGenerateFullName() {
+    public void testConfigFileGenerateFullName() throws PolicyException {
         String configFileIdentifier = "test";
         
         String expResult = "wsit-test.xml";
         String result = PolicyUtils.ConfigFile.generateFullName(configFileIdentifier);
         assertEquals(expResult, result);
+    }
+    
+    /**
+     * Test of generateFullName method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
+     */
+    public void testConfigFileGenerateFullNameNull() {
+        String configFileIdentifier = null;
+        try {
+           String result = PolicyUtils.ConfigFile.generateFullName(configFileIdentifier);
+           fail("Expected PolicyException, got result = " + result);
+        } catch (PolicyException e) {
+            // expected an exception
+        }
     }
     
     /**
