@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -99,6 +99,7 @@ final public class PolicyMapKey  {
         this.handler = handler;
     }
     
+    @Override
     public boolean equals(final Object that) {
         if (this == that) {
             return true; // we are lucky here => no special handling is required
@@ -119,6 +120,7 @@ final public class PolicyMapKey  {
         }
     }
 
+    @Override
     public int hashCode() {
         if (handler == null) {
             throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0046_POLICY_MAP_KEY_HANDLER_NOT_SET()));
@@ -127,8 +129,9 @@ final public class PolicyMapKey  {
         return handler.generateHashCode(this);
     }    
     
+    @Override
     public String toString() {
-        final StringBuffer result = new StringBuffer("WsdlPolicyMapKey(");
+        final StringBuffer result = new StringBuffer("PolicyMapKey(");
         result.append(this.service).append(", ").append(port).append(", ").append(operation).append(", ").append(faultMessage);
         return result.append(")").toString();
     }
