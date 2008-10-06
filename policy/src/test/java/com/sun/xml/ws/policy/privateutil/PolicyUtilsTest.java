@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -36,9 +36,14 @@
 
 package com.sun.xml.ws.policy.privateutil;
 
+import com.sun.xml.ws.policy.AssertionSet;
+import com.sun.xml.ws.policy.PolicyAssertion;
 import com.sun.xml.ws.policy.PolicyException;
+import com.sun.xml.ws.policy.sourcemodel.AssertionData;
+import com.sun.xml.ws.policy.spi.AssertionCreationException;
 import com.sun.xml.ws.policy.spi.PolicyAssertionCreator;
 import java.io.Closeable;
+import java.util.Collection;
 import javax.xml.stream.XMLStreamReader;
 import junit.framework.TestCase;
 
@@ -300,5 +305,16 @@ public class PolicyUtilsTest extends TestCase {
     public void testRtf2396Unquote() {
         assertEquals("hello Vasku", PolicyUtils.Rfc2396.unquote("hello%20Vasku"));
     }
+
     
+    private static class MockPolicyAssertionCreator  implements PolicyAssertionCreator {
+
+        public String[] getSupportedDomainNamespaceURIs() {
+            return null;
+        }
+
+        public PolicyAssertion createAssertion(AssertionData data, Collection<PolicyAssertion> assertionParameters, AssertionSet nestedAlternative, PolicyAssertionCreator defaultCreator) throws AssertionCreationException {
+            return null;
+        }
+    }
 }
