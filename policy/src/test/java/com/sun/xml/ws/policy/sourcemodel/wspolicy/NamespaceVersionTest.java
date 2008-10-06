@@ -57,6 +57,12 @@ public class NamespaceVersionTest extends TestCase {
         NamespaceVersion result = NamespaceVersion.resolveVersion(uri);
         assertEquals(expResult, result);
     }
+    
+    public void testResolveVersion_StringNull() {
+        String uri = "http://metro.test/";
+        NamespaceVersion result = NamespaceVersion.resolveVersion(uri);
+        assertNull(result);
+    }
 
     /**
      * Test of resolveVersion method, of class NamespaceVersion.
@@ -83,6 +89,20 @@ public class NamespaceVersionTest extends TestCase {
     public void testResolveAsToken() {
         QName name = new QName("http://www.w3.org/ns/ws-policy", "Policy");
         XmlToken expResult = XmlToken.Policy;
+        XmlToken result = NamespaceVersion.resolveAsToken(name);
+        assertEquals(expResult, result);
+    }
+    
+    public void testResolveAsTokenWrongNamespace() {
+        QName name = new QName("http://metro.test/", "Policy");
+        XmlToken expResult = XmlToken.UNKNOWN;
+        XmlToken result = NamespaceVersion.resolveAsToken(name);
+        assertEquals(expResult, result);
+    }
+
+    public void testResolveAsTokenWrongLocalName() {
+        QName name = new QName("http://schemas.xmlsoap.org/ws/2004/09/policy", "test");
+        XmlToken expResult = XmlToken.UNKNOWN;
         XmlToken result = NamespaceVersion.resolveAsToken(name);
         assertEquals(expResult, result);
     }
