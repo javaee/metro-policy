@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -165,6 +165,7 @@ public final class PolicyMap implements Iterable<Policy> {
             return internalMap.isEmpty();
         }
         
+        @Override
         public String toString() {
             return internalMap.toString();
         }
@@ -640,6 +641,7 @@ public final class PolicyMap implements Iterable<Policy> {
         return new PolicyMapKey(service, port, operation);
     }
     
+    @Override
     public String toString(){
         // TODO
         final StringBuffer result = new StringBuffer();
