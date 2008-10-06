@@ -160,7 +160,7 @@ public enum NamespaceVersion {
     }
     
     /**
-     * Resloves XML token into a fully qualified name within given namespace version.
+     * Resolves XML token into a fully qualified name within given namespace version.
      * 
      * @param token XML token enumeration value.
      * @return fully qualified name of the {@code token} within given namespace 
