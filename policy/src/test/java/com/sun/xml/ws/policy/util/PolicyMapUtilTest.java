@@ -81,8 +81,9 @@ public class PolicyMapUtilTest extends TestCase {
     public void testRejectAlternativesComplex() throws PolicyException {
         PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
         ModelNode root = model.getRootNode();
-        ModelNode alternative1 = root.createChildExactlyOneNode();
-        ModelNode alternative2 = root.createChildExactlyOneNode();
+        ModelNode alternatives = root.createChildExactlyOneNode();
+        ModelNode alternative1 = alternatives.createChildAllNode();
+        ModelNode alternative2 = alternatives.createChildAllNode();
         AssertionData assertion1 = AssertionData.createAssertionData(new QName("test1", "test1"));
         alternative1.createChildAssertionNode(assertion1);
         AssertionData assertion2 = AssertionData.createAssertionData(new QName("test2", "test2"));
