@@ -108,4 +108,8 @@ public class PolicyMapUtilTest extends TestCase {
         }
     }
 
+    public void testCreateInstance() {
+        PolicyMapUtil util = new PolicyMapUtil();
+        assertNotNull(util);
+    }
 }
