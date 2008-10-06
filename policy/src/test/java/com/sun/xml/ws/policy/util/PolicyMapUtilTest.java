@@ -42,6 +42,11 @@ import com.sun.xml.ws.policy.PolicyMapExtender;
 import com.sun.xml.ws.policy.PolicyMapKey;
 import com.sun.xml.ws.policy.PolicyMapMutator;
 import com.sun.xml.ws.policy.PolicySubject;
+import com.sun.xml.ws.policy.sourcemodel.AssertionData;
+import com.sun.xml.ws.policy.sourcemodel.ModelNode;
+import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
+import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
+import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import java.util.Arrays;
 import javax.xml.namespace.QName;
 import junit.framework.TestCase;
@@ -59,7 +64,7 @@ public class PolicyMapUtilTest extends TestCase {
     /**
      * Test of rejectAlternatives method, of class PolicyMapUtil.
      */
-    public void testRejectAlternatives() throws PolicyException {
+    public void testRejectAlternativesSimple() throws PolicyException {
         PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
         PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));        
 
@@ -71,6 +76,35 @@ public class PolicyMapUtilTest extends TestCase {
         extender.putServiceSubject(key, subject);
         
         PolicyMapUtil.rejectAlternatives(map);
+    }
+
+    public void testRejectAlternativesComplex() throws PolicyException {
+        PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
+        ModelNode root = model.getRootNode();
+        ModelNode alternative1 = root.createChildExactlyOneNode();
+        ModelNode alternative2 = root.createChildExactlyOneNode();
+        AssertionData assertion1 = AssertionData.createAssertionData(new QName("test1", "test1"));
+        alternative1.createChildAssertionNode(assertion1);
+        AssertionData assertion2 = AssertionData.createAssertionData(new QName("test2", "test2"));
+        alternative2.createChildAssertionNode(assertion2);
+        PolicyModelTranslator translator = PolicyModelTranslator.getTranslator();
+        Policy policy = translator.translate(model);
+        
+        PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));        
+
+        PolicySubject subject = new PolicySubject("dummy", policy);
+        
+        PolicyMapKey key = PolicyMap.createWsdlServiceScopeKey(new QName("1"));
+        extender.putServiceSubject(key, subject);
+        key = PolicyMap.createWsdlServiceScopeKey(new QName("2"));
+        extender.putServiceSubject(key, subject);
+
+        try {
+            PolicyMapUtil.rejectAlternatives(map);
+            fail("Expected a PolicyException");
+        } catch (PolicyException e) {
+        }
     }
 
 }
