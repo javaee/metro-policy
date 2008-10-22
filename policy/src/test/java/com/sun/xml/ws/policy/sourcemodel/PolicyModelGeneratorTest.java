@@ -81,4 +81,13 @@ public class PolicyModelGeneratorTest extends TestCase {
         assertEquals(expResult, result);
     }
 
+    /**
+     * Test of translate method, of class PolicyModelGenerator.
+     */
+    public void testTranslateNull() throws PolicyException {
+        PolicyModelGenerator instance = PolicyModelGenerator.getGenerator();
+        PolicySourceModel model = instance.translate(null);
+        assertNull(model);
+    }
+
 }
