@@ -242,4 +242,8 @@
             </plugin>
     	</plugins>
     </reporting>
+
+    <properties>
+        <netbeans.hint.license>policy</netbeans.hint.license>
+    </properties>
 </project>
