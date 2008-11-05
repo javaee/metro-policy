@@ -154,6 +154,37 @@ public class PolicyIntersectorTest extends TestCase {
         assertEquals(expResult, result);
     }
 
+    public void testIntersectNull() {
+        try {
+            PolicyIntersector instance = PolicyIntersector.createStrictPolicyIntersector();
+            Policy result = instance.intersect((Policy[])null);
+            fail("Expected IllegalArgumentException, instead got policy result = " + result);
+        } catch (IllegalArgumentException e) {
+            // expected exception
+        }
+    }
+
+    public void testIntersectOne() {
+        AssertionData data1 = AssertionData.createAssertionData(new QName("testns", "name1"));
+        PolicyAssertion assertion1 = new MockAssertion(data1);
+        AssertionData data2 = AssertionData.createAssertionData(new QName("testns", "name2"));
+        PolicyAssertion assertion2 = new MockAssertion(data2);
+        AssertionData data3 = AssertionData.createAssertionData(new QName("testns", "name3"));
+        PolicyAssertion assertion3 = new MockAssertion(data3);
+        LinkedList<PolicyAssertion> assertions1 = new LinkedList<PolicyAssertion>();
+        assertions1.add(assertion1);
+        assertions1.add(assertion2);
+        assertions1.add(assertion3);
+        AssertionSet set1 = AssertionSet.createAssertionSet(assertions1);
+        LinkedList<AssertionSet> sets1 = new LinkedList<AssertionSet>();
+        sets1.add(set1);
+        Policy policy = Policy.createPolicy(null, "policy1", sets1);
+        PolicyIntersector instance = PolicyIntersector.createStrictPolicyIntersector();
+        Policy expResult = Policy.createPolicy(null, "expectedpolicy", sets1);
+        Policy result = instance.intersect(policy);
+        assertEquals(expResult, result);
+    }
+
 
     private static class MockAssertion extends PolicyAssertion {
 
