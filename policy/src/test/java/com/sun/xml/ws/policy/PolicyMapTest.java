@@ -39,8 +39,6 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import javax.xml.namespace.QName;
 import junit.framework.TestCase;
-import static com.sun.xml.ws.policy.testutils.PolicyResourceLoader.loadPolicy;
-import static com.sun.xml.ws.policy.testutils.PolicyResourceLoader.getResourceUrl;
 
 /**
  *
