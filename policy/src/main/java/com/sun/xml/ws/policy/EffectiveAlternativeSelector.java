@@ -231,6 +231,6 @@ public class EffectiveAlternativeSelector {
             alternativeSet = new LinkedList<AssertionSet>();
             alternativeSet.add(bestAlternative);
         }
-        return Policy.createPolicy(policy.getName(), policy.getId(), alternativeSet);
+        return Policy.createPolicy(policy.getNamespaceVersion(), policy.getName(), policy.getId(), alternativeSet);
     }
 }
