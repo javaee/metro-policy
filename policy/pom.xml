@@ -187,6 +187,10 @@
                         <manifest>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
+                        <manifestEntries>
+                            <Build-Id>${env.BUILD_ID}</Build-Id>
+                            <Build-Tag>${env.BUILD_TAG}</Build-Tag>
+                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
