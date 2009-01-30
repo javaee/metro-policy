@@ -148,7 +148,9 @@ public class EffectiveAlternativeSelector {
     /**
      * Does the selection for policy map bound to given modifier
      *
-     * @param modifier @see EffectivePolicyModifier which the map is bound to
+     * @param modifier Holds the policy map
+     * @throws PolicyException Most likely an internal error if a policy could not be read or set on the policy map
+     * @see EffectivePolicyModifier which the map is bound to
      */
     public static final void doSelection(final EffectivePolicyModifier modifier) throws PolicyException {
         final PolicyMap map = modifier.getMap();
