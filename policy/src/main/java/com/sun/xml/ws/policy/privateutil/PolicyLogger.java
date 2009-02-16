@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,6 +65,9 @@ public final class PolicyLogger {
             Field loggingDomainField = jaxwsConstants.getField("LoggingDomain");
             Object loggingDomain = loggingDomainField.get(null);
             loggingSubsystemName = loggingDomain.toString().concat(".wspolicy");
+        } catch (RuntimeException e) {
+            // if we catch an exception, we fall back to default name
+            loggingSubsystemName = "wspolicy";
         } catch (Exception e) {
             // if we catch an exception, we fall back to default name
             loggingSubsystemName = "wspolicy";
@@ -263,6 +266,7 @@ public final class PolicyLogger {
      * {@code exception} original cause is initialized with instance referenced
      * by {@code cause} parameter.
      *
+     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param cause initial cause of the exception that should be logged as well
@@ -294,6 +298,7 @@ public final class PolicyLogger {
      * {@link #logSevereException(Throwable, Throwable)}
      * method version but you might still want to log the original cause as well.
      *
+     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param logCause deterimnes whether initial cause of the exception should
@@ -315,6 +320,11 @@ public final class PolicyLogger {
 
     /**
      * Same as {@link #logSevereException(Throwable, boolean) logSevereException(exception, true)}.
+     * @param <T> the type of the exception
+     * @param exception exception whose message should be logged. Must not be
+     *        {@code null}.
+     * @return the same exception instance that was passed in as the {@code exception}
+     *         parameter.
      */
     public <T extends Throwable> T logSevereException(final T exception) {
         if (this.logger.isLoggable(Level.SEVERE)) {
@@ -336,6 +346,7 @@ public final class PolicyLogger {
      * {@code exception} original cause is initialized with instance referenced
      * by {@code cause} parameter.
      *
+     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param cause initial cause of the exception that should be logged as well
@@ -368,6 +379,7 @@ public final class PolicyLogger {
      * {@link #logException(Throwable, Throwable, Level) logException(exception, cause, level)}
      * method version but you might still want to log the original cause as well.
      *
+     * @param <T> the type of the exception
      * @param exception exception whose message should be logged. Must not be
      *        {@code null}.
      * @param logCause deterimnes whether initial cause of the exception should
@@ -391,6 +403,12 @@ public final class PolicyLogger {
     /**
      * Same as {@link #logException(Throwable, Throwable, Level) 
      * logException(exception, true, level)}.
+     * @param <T> the type of the exception
+     * @param exception exception whose message should be logged. Must not be
+     *        {@code null}.
+     * @param level loging level which should be used for logging
+     * @return the same exception instance that was passed in as the {@code exception}
+     *         parameter.
      */
     public <T extends Throwable> T logException(final T exception, final Level level) {
         if (this.logger.isLoggable(level)) {
