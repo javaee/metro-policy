@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -74,15 +74,16 @@ public final class PolicySourceModelContext {
         return getModels().containsKey(modelUri);
     }
     
-    PolicySourceModel retrieveModel(final URI modelUri) throws PolicyModelAccessException {
+    PolicySourceModel retrieveModel(final URI modelUri) {
         return getModels().get(modelUri);
     }
     
-    PolicySourceModel retrieveModel(final URI modelUri, final URI digestAlgorithm, final String digest) throws PolicyModelAccessException {
+    PolicySourceModel retrieveModel(final URI modelUri, final URI digestAlgorithm, final String digest) {
         // TODO: implement
         throw new UnsupportedOperationException();
     }
-    
+
+    @Override
     public String toString() {
         return policyModels.toString();
     }
