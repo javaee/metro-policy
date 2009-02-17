@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -77,39 +77,22 @@ public final class PolicySourceModel implements Cloneable {
         for (NamespaceVersion version : NamespaceVersion.values()) {
             defaultNamespaceToPrefixMap.put(version.toString(), version.getDefaultNamespacePrefix());
         }
+        defaultNamespaceToPrefixMap.put(PolicyConstants.WSU_NAMESPACE_URI, PolicyConstants.WSU_NAMESPACE_PREFIX);
         defaultNamespaceToPrefixMap.put(PolicyConstants.SUN_POLICY_NAMESPACE_URI, PolicyConstants.SUN_POLICY_NAMESPACE_PREFIX);
     }
     
     private ModelNode rootNode;
-    private String policyId;
-    private String policyName;
-    private NamespaceVersion nsVersion;
+    private final String policyId;
+    private final String policyName;
+    private final NamespaceVersion nsVersion;
     private final List<ModelNode> references = new LinkedList<ModelNode>(); // links to policy reference nodes
     private boolean expanded = false;
 
-//    /**
-//     * Factory method that creates new policy source model instance.
-//     *
-//     * @return newly created policy source model instance
-//     */
-//    @Deprecated
-//    public static PolicySourceModel createPolicySourceModel() {
-//        return new PolicySourceModel(NamespaceVersion.getLatestVersion());
-//    }
-//    /**
-//     * Factory method that creates new policy source model instance and initializes it according to parameters provided.
-//     *
-//     * @param policyId local policy identifier - relative URI. May be {@code null}.
-//     * @param policyName global policy identifier - absolute policy expression URI. May be {@code null}.
-//     * @return newly created policy source model instance with its name and id properly set
-//     */
-//    @Deprecated
-//    public static PolicySourceModel createPolicySourceModel(final String policyId, final String policyName) {
-//        return new PolicySourceModel(NamespaceVersion.getLatestVersion(), policyId, policyName);
-//    }
+
     /**
      * Factory method that creates new policy source model instance.
      *
+     * @param nsVersion The policy version
      * @return newly created policy source model instance
      */
     public static PolicySourceModel createPolicySourceModel(final NamespaceVersion nsVersion) {
@@ -119,6 +102,7 @@ public final class PolicySourceModel implements Cloneable {
     /**
      * Factory method that creates new policy source model instance and initializes it according to parameters provided.
      *
+     * @param nsVersion The policy version
      * @param policyId local policy identifier - relative URI. May be {@code null}.
      * @param policyName global policy identifier - absolute policy expression URI. May be {@code null}.
      * @return newly created policy source model instance with its name and id properly set
@@ -134,8 +118,7 @@ public final class PolicySourceModel implements Cloneable {
      * {@link PolicyConstants#POLICY_NAMESPACE_PREFIX POLICY_NAMESPACE_PREFIX constant}
      */
     private PolicySourceModel(NamespaceVersion nsVersion) {
-        this.rootNode = ModelNode.createRootPolicyNode(this);
-        this.nsVersion = nsVersion;
+        this(nsVersion, null, null);
     }
 
     /**
@@ -146,7 +129,8 @@ public final class PolicySourceModel implements Cloneable {
      * @param policyName absloute IRI of policy expression. May be {@code null}.
      */
     private PolicySourceModel(NamespaceVersion nsVersion, String policyId, String policyName) {
-        this(nsVersion);
+        this.rootNode = ModelNode.createRootPolicyNode(this);
+        this.nsVersion = nsVersion;
         this.policyId = policyId;
         this.policyName = policyName;
     }
@@ -189,13 +173,13 @@ public final class PolicySourceModel implements Cloneable {
 
     /**
      * Provides information about how namespaces used in this {@link PolicySourceModel}
-     * instance should be mapped to thier default prefixes when marshalled.
+     * instance should be mapped to their default prefixes when marshalled.
      *
      * @return immutable map that holds information about namespaces used in the
      *         model and their mapping to prefixes that should be used when marshalling
      *         this model.
      */
-    Map<String, String> getNamespaceToPrefixMapping() {
+    Map<String, String> getNamespaceToPrefixMapping() throws PolicyException {
         final Map<String, String> nsToPrefixMap = new HashMap<String, String>();
 
         final Collection<String> namespaces = getUsedNamespaces();
@@ -231,7 +215,6 @@ public final class PolicySourceModel implements Cloneable {
         result = result && ((this.policyId == null) ? that.policyId == null : this.policyId.equals(that.policyId));
         result = result && ((this.policyName == null) ? that.policyName == null : this.policyName.equals(that.policyName));
         result = result && this.rootNode.equals(that.rootNode);
-//        result = result && ((this.xxx == null) ? that.xxx == null : this.xxx.equals(that.xxx));
 
         return result;
     }
@@ -246,7 +229,6 @@ public final class PolicySourceModel implements Cloneable {
         result = 37 * result + ((this.policyId == null) ? 0 : this.policyId.hashCode());
         result = 37 * result + ((this.policyName == null) ? 0 : this.policyName.hashCode());
         result = 37 * result + this.rootNode.hashCode();
-//        result = 37 * result + ((this.xxx == null) ? 0 : this.xxx.hashCode());
 
         return result;
     }
@@ -315,7 +297,7 @@ public final class PolicySourceModel implements Cloneable {
 
     /**
      * Expands current policy model. This means, that if this model contains any (unexpanded) policy references, then the method expands those
-     * references by placing the content of the referneced policy source models under the policy reference nodes. This operation merely creates
+     * references by placing the content of the referenced policy source models under the policy reference nodes. This operation merely creates
      * a link between this and referenced policy source models. Thus any change in the referenced models will be visible wihtin this model as well.
      * <p/>
      * Please, notice that the method does not check if the referenced models are already expanded nor does the method try to expand unexpanded
@@ -325,6 +307,7 @@ public final class PolicySourceModel implements Cloneable {
      * {@link #isExpanded()} and {@link #containsPolicyReferences()} for more details.
      *
      * @param context a policy source model context holding the set of unmarshalled policy source models within the same context.
+     * @throws PolicyException Thrown if a referenced policy could not be resolved
      */
     public synchronized void expand(final PolicySourceModelContext context) throws PolicyException {
         if (!isExpanded()) {
@@ -367,7 +350,7 @@ public final class PolicySourceModel implements Cloneable {
      * @param policy policy instance to check fro used namespaces
      * @return collection of used namespaces within given policy instance
      */
-    private Collection<String> getUsedNamespaces() {
+    private Collection<String> getUsedNamespaces() throws PolicyException {
         final Set<String> namespaces = new HashSet<String>();
         namespaces.add(getNamespaceVersion().toString());
 
@@ -382,7 +365,9 @@ public final class PolicySourceModel implements Cloneable {
         while ((processedNode = nodesToBeProcessed.poll()) != null) {
             for (ModelNode child : processedNode.getChildren()) {
                 if (child.hasChildren()) {
-                    nodesToBeProcessed.offer(child);
+                    if (!nodesToBeProcessed.offer(child)) {
+                        throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0081_UNABLE_TO_INSERT_CHILD(nodesToBeProcessed, child)));
+                    }
                 }
 
                 if (child.isDomainSpecific()) {
