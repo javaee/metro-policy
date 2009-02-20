@@ -152,31 +152,27 @@ public class PolicyModelMarshallerTest extends TestCase {
         assertTrue(result.contains("xmlns:wsu"));
     }
 
-    // It is currently not possible to marshal default namespace prefixes onto
-    // TypedXmlWriter because when the PolicyWSDLGeneratorExtension gets a hold
-    // of that object, it is already in a state where you cannot add namespace
-    // declarations.
-//    public void testMarshalPrefixWrite() throws PolicyException {
-//        PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
-//        ModelNode root = model.getRootNode();
-//        ModelNode all = root.createChildAllNode();
-//        AssertionData assertion = AssertionData.createAssertionData(new QName("http://schemas.foo.com/", "Assertion"));
-//        all.createChildAssertionNode(assertion);
-//
-//        Document document = builder.newDocument();
-//        TypedXmlWriter storage = TXW.create(new QName("root"), TypedXmlWriter.class, new DomSerializer(document));
-//        PolicyModelMarshaller instance = PolicyModelMarshaller.getXmlMarshaller(false);
-//
-//        instance.marshal(model, storage);
-//        storage.commit();
-//
-//        Element element = document.getDocumentElement();
-//        Node policyElement = element.getFirstChild();
-//        assertEquals(NamespaceVersion.v1_5.getDefaultNamespacePrefix(), policyElement.getPrefix());
-//
-//        NamedNodeMap map = policyElement.getAttributes();
-//        Node id = map.getNamedItemNS(PolicyConstants.WSU_ID.getNamespaceURI(), PolicyConstants.WSU_ID.getLocalPart());
-//        assertEquals(PolicyConstants.WSU_NAMESPACE_PREFIX, id.getPrefix());
-//    }
+    public void testMarshalPrefixWrite() throws PolicyException {
+        PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
+        ModelNode root = model.getRootNode();
+        ModelNode all = root.createChildAllNode();
+        AssertionData assertion = AssertionData.createAssertionData(new QName("http://schemas.foo.com/", "Assertion"));
+        all.createChildAssertionNode(assertion);
+
+        Document document = builder.newDocument();
+        TypedXmlWriter storage = TXW.create(new QName("root"), TypedXmlWriter.class, new DomSerializer(document));
+        PolicyModelMarshaller instance = PolicyModelMarshaller.getXmlMarshaller(false);
+
+        instance.marshal(model, storage);
+        storage.commit();
+
+        Element element = document.getDocumentElement();
+        Node policyElement = element.getFirstChild();
+        assertEquals(NamespaceVersion.v1_5.getDefaultNamespacePrefix(), policyElement.getPrefix());
+
+        NamedNodeMap map = policyElement.getAttributes();
+        Node id = map.getNamedItemNS(PolicyConstants.WSU_ID.getNamespaceURI(), PolicyConstants.WSU_ID.getLocalPart());
+        assertEquals(PolicyConstants.WSU_NAMESPACE_PREFIX, id.getPrefix());
+    }
 
 }

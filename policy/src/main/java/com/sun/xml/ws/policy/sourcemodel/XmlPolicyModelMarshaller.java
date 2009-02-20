@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -36,20 +36,20 @@
 
 package com.sun.xml.ws.policy.sourcemodel;
 
-import com.sun.xml.ws.policy.sourcemodel.wspolicy.XmlToken;
-import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
-import java.util.Collection;
-import java.util.Map.Entry;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamWriter;
 import com.sun.xml.txw2.TXW;
 import com.sun.xml.txw2.TypedXmlWriter;
 import com.sun.xml.txw2.output.StaxSerializer;
+import com.sun.xml.ws.policy.sourcemodel.wspolicy.XmlToken;
+import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import com.sun.xml.ws.policy.PolicyConstants;
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamWriter;
 
 public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(XmlPolicyModelMarshaller.class);
@@ -84,6 +84,8 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
      */
     private void marshal(final PolicySourceModel model, final TypedXmlWriter writer) throws PolicyException {
         final TypedXmlWriter policy = writer._element(model.getNamespaceVersion().asQName(XmlToken.Policy), TypedXmlWriter.class);
+
+        marshalDefaultPrefixes(model, policy);
         marshalPolicyAttributes(model, policy);
         marshal(model.getNamespaceVersion(), model.getRootNode(), policy);
     }
@@ -97,17 +99,8 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
     private void marshal(final PolicySourceModel model, final XMLStreamWriter writer) throws PolicyException {
         final StaxSerializer serializer = new StaxSerializer(writer);
         final TypedXmlWriter policy = TXW.create(model.getNamespaceVersion().asQName(XmlToken.Policy), TypedXmlWriter.class, serializer);
-        
-        final Map<String, String> nsMap = model.getNamespaceToPrefixMapping();
-        
-        if (!marshallInvisible && nsMap.containsKey(PolicyConstants.SUN_POLICY_NAMESPACE_URI)) {
-            nsMap.remove(PolicyConstants.SUN_POLICY_NAMESPACE_URI);
-        }
-        
-        for (Map.Entry<String, String> nsMappingEntry : nsMap.entrySet()) {
-            policy._namespace(nsMappingEntry.getKey(), nsMappingEntry.getValue());
-        }
-        
+
+        marshalDefaultPrefixes(model, policy);
         marshalPolicyAttributes(model, policy);
         marshal(model.getNamespaceVersion(), model.getRootNode(), policy);
         policy.commit();
@@ -163,6 +156,23 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
                 }
                 marshal(nsVersion, node, child);
             }
+        }
+    }
+
+    /**
+     * Write default prefixes onto the given TypedXmlWriter
+     *
+     * @param model The policy source model. May not be null.
+     * @param writer The TypedXmlWriter. May not be null.
+     * @throws PolicyException If the creation of the prefix to namespace URI map failed.
+     */
+    private void marshalDefaultPrefixes(final PolicySourceModel model, final TypedXmlWriter writer) throws PolicyException {
+        final Map<String, String> nsMap = model.getNamespaceToPrefixMapping();
+        if (!marshallInvisible && nsMap.containsKey(PolicyConstants.SUN_POLICY_NAMESPACE_URI)) {
+            nsMap.remove(PolicyConstants.SUN_POLICY_NAMESPACE_URI);
+        }
+        for (Map.Entry<String, String> nsMappingEntry : nsMap.entrySet()) {
+            writer._namespace(nsMappingEntry.getKey(), nsMappingEntry.getValue());
         }
     }
     
