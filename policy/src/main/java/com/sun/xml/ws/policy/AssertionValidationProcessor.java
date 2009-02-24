@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -65,7 +65,8 @@ public final class AssertionValidationProcessor {
     /**
      * Factory method that returns singleton instance of the class.
      * 
-     * @return singleton instance of the class.
+     * @return singleton An instance of the class.
+     * @throws PolicyException If instantiation failed.
      */
     public static AssertionValidationProcessor getInstance() throws PolicyException {
         if (validators.length == 0) {
@@ -78,6 +79,9 @@ public final class AssertionValidationProcessor {
      * Validates fitness of the {@code assertion} on the client side.
      *
      * return client side {@code assertion} fitness 
+     * @param assertion The assertion to be validated.
+     * @return The fitness of the assertion on the client side.
+     * @throws PolicyException If validation failed.
      */
     public PolicyAssertionValidator.Fitness validateClientSide(final PolicyAssertion assertion) throws PolicyException {
         PolicyAssertionValidator.Fitness assertionFitness = PolicyAssertionValidator.Fitness.UNKNOWN;
@@ -95,7 +99,10 @@ public final class AssertionValidationProcessor {
      * Validates fitness of the {@code assertion} on the server side.
      *
      * return server side {@code assertion} fitness 
-     */    
+     * @param assertion The assertion to be validated.
+     * @return The fitness of the assertion on the server side.
+     * @throws PolicyException If validation failed.
+     */
     public PolicyAssertionValidator.Fitness validateServerSide(final PolicyAssertion assertion) throws PolicyException {
         PolicyAssertionValidator.Fitness assertionFitness = PolicyAssertionValidator.Fitness.UNKNOWN;
         for (PolicyAssertionValidator validator : validators) {

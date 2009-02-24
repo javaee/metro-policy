@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -88,6 +88,22 @@ public class AbstractQNameValidatorTest extends TestCase {
         assertEquals(expResult, result);
     }
 
+    public void testValidateClientSideEmpty() {
+        PolicyAssertion assertion = new MockPolicyAssertion(AssertionData.createAssertionData(new QName("test1", "test2")));
+        AbstractQNameValidator instance = new MockQNameValidator(null, null);
+        Fitness expResult = PolicyAssertionValidator.Fitness.UNKNOWN;
+        Fitness result = instance.validateClientSide(assertion);
+        assertEquals(expResult, result);
+    }
+
+    public void testValidateClientSideSupported() {
+        PolicyAssertion assertion = new MockPolicyAssertion(AssertionData.createAssertionData(MockPolicyAssertionValidator.CLIENT_ASSERTION_NAME));
+        AbstractQNameValidator instance = new MockPolicyAssertionValidator();
+        Fitness expResult = PolicyAssertionValidator.Fitness.SUPPORTED;
+        Fitness result = instance.validateClientSide(assertion);
+        assertEquals(expResult, result);
+    }
+
     /**
      * Test of validateServerSide method, of class AbstractQNameValidator.
      */
@@ -95,6 +111,22 @@ public class AbstractQNameValidatorTest extends TestCase {
         PolicyAssertion assertion = new MockPolicyAssertion(AssertionData.createAssertionData(new QName("testa", "testb")));
         AbstractQNameValidator instance = mockValidator;
         Fitness expResult = PolicyAssertionValidator.Fitness.UNKNOWN;
+        Fitness result = instance.validateServerSide(assertion);
+        assertEquals(expResult, result);
+    }
+
+    public void testValidateServerSideEmpty() {
+        PolicyAssertion assertion = new MockPolicyAssertion(AssertionData.createAssertionData(new QName("testa", "testb")));
+        AbstractQNameValidator instance = new MockQNameValidator(null, null);
+        Fitness expResult = PolicyAssertionValidator.Fitness.UNKNOWN;
+        Fitness result = instance.validateServerSide(assertion);
+        assertEquals(expResult, result);
+    }
+
+    public void testValidateServerSideSupported() {
+        PolicyAssertion assertion = new MockPolicyAssertion(AssertionData.createAssertionData(MockPolicyAssertionValidator.SERVER_ASSERTION_NAME));
+        AbstractQNameValidator instance = new MockPolicyAssertionValidator();
+        Fitness expResult = PolicyAssertionValidator.Fitness.SUPPORTED;
         Fitness result = instance.validateServerSide(assertion);
         assertEquals(expResult, result);
     }
