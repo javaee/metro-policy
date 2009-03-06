@@ -253,7 +253,7 @@ public class PolicyMergerTest extends TestCase {
     /**
      * Test of merge method, of class PolicyMerger.
      */
-    public void testMergeEmptyAlternatives() {
+    public void testMergeNoAlternatives() {
         final Collection<Policy> policies = new LinkedList<Policy>();
         final Policy policy1 = Policy.createNullPolicy();
         final Policy policy2 = Policy.createNullPolicy();
