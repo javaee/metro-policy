@@ -68,8 +68,10 @@ public final class PolicyMerger {
     
     /**
      * Takes collection of policies and merges them into a single policy using algorithm described in
-     * WS-PolicyAttachment specification. None of the original policis in the collection is modified in
+     * WS-PolicyAttachment specification. None of the original policies in the collection are modified in
      * any way.
+     *
+     * The newly created policy has an ID that is a concatentation of all merged policy IDs.
      *
      * @param policies collection of policies to be merged. The collection must not contain '{@code null}' elements!
      * @return merged policy containing combination of policy alternatives stored in all input policies.
@@ -84,24 +86,32 @@ public final class PolicyMerger {
         }
         
         final Collection<Collection<AssertionSet>> alternativeSets = new LinkedList<Collection<AssertionSet>>();
+        final StringBuilder id = new StringBuilder();
         NamespaceVersion mergedVersion = policies.iterator().next().getNamespaceVersion();
         for (Policy policy : policies) {
             alternativeSets.add(policy.getContent());
             if (mergedVersion.compareTo(policy.getNamespaceVersion()) < 0) {
                 mergedVersion = policy.getNamespaceVersion();
             }
+            final String policyId = policy.getId();
+            if (policyId != null) {
+                if (id.length() > 0) {
+                    id.append('-');
+                }
+                id.append(policyId);
+            }
         }
         
         final Collection<Collection<AssertionSet>> combinedAlternatives = PolicyUtils.Collections.combine(null, alternativeSets, false);
         
         if (combinedAlternatives == null || combinedAlternatives.isEmpty()) {
-            return Policy.createNullPolicy(mergedVersion, null, null);
+            return Policy.createNullPolicy(mergedVersion, null, id.length() == 0 ? null : id.toString());
         } else {
             final Collection<AssertionSet> mergedSetList = new ArrayList<AssertionSet>(combinedAlternatives.size());
             for (Collection<AssertionSet> toBeMerged : combinedAlternatives) {
                 mergedSetList.add(AssertionSet.createMergedAssertionSet(toBeMerged));
             }
-            return Policy.createPolicy(mergedVersion, null, null, mergedSetList);
+            return Policy.createPolicy(mergedVersion, null, id.length() == 0 ? null : id.toString(), mergedSetList);
         }
     }
 }
