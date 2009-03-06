@@ -37,6 +37,7 @@
 package com.sun.xml.ws.policy;
 
 import com.sun.xml.ws.policy.sourcemodel.AssertionData;
+import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import java.util.Collection;
 import java.util.LinkedList;
 import javax.xml.namespace.QName;
@@ -208,6 +209,75 @@ public class PolicyMergerTest extends TestCase {
         if (!expResult1.equals(result)) {
             assertEquals(expResult2, result);
         }
+    }
+
+    /**
+     * Test of merge method, of class PolicyMerger.
+     */
+    public void testMergePolicyNamespace() {
+        AssertionData assertionData1 = AssertionData.createAssertionData(new QName("http://example.test/", "Assertion1"));
+        PolicyAssertion assertion1 = new PolicyAssertion(assertionData1, null) { };
+        Collection<PolicyAssertion> assertions1 = new LinkedList<PolicyAssertion>();
+        assertions1.add(assertion1);
+        AssertionSet assertionSet1 = AssertionSet.createAssertionSet(assertions1);
+        Collection<AssertionSet> assertionSets1 = new LinkedList<AssertionSet>();
+        assertionSets1.add(assertionSet1);
+        Policy policy1 = Policy.createPolicy(NamespaceVersion.v1_2, null, null, assertionSets1);
+
+        AssertionData assertionData2 = AssertionData.createAssertionData(new QName("http://example.test/", "Assertion2"));
+        PolicyAssertion assertion2 = new PolicyAssertion(assertionData2, null) { };
+        Collection<PolicyAssertion> assertions2 = new LinkedList<PolicyAssertion>();
+        assertions2.add(assertion2);
+        AssertionSet assertionSet2 = AssertionSet.createAssertionSet(assertions2);
+        Collection<AssertionSet> assertionSets2 = new LinkedList<AssertionSet>();
+        assertionSets2.add(assertionSet2);
+        Policy policy2 = Policy.createPolicy(NamespaceVersion.v1_5, null, null, assertionSets2);
+
+        final Collection<Policy> policies = new LinkedList<Policy>();
+        policies.add(policy1);
+        policies.add(policy2);
+
+        Collection<PolicyAssertion> assertionsExp = new LinkedList<PolicyAssertion>();
+        assertionsExp.add(assertion1);
+        assertionsExp.add(assertion2);
+        AssertionSet assertionSetExp = AssertionSet.createAssertionSet(assertionsExp);
+        Collection<AssertionSet> assertionSetsExp = new LinkedList<AssertionSet>();
+        assertionSetsExp.add(assertionSetExp);
+        Policy expResult = Policy.createPolicy(assertionSetsExp);
+
+        final PolicyMerger instance = PolicyMerger.getMerger();
+        final Policy result = instance.merge(policies);
+        assertEquals(expResult, result);
+    }
+
+    /**
+     * Test of merge method, of class PolicyMerger.
+     */
+    public void testMergeEmptyAlternatives() {
+        final Collection<Policy> policies = new LinkedList<Policy>();
+        final Collection<PolicyAssertion> assertions = new LinkedList<PolicyAssertion>();
+
+        AssertionSet assertionSet1 = AssertionSet.createAssertionSet(assertions);
+        AssertionSet assertionSet2 = AssertionSet.createAssertionSet(assertions);
+        Collection<AssertionSet> assertionSets1 = new LinkedList<AssertionSet>();
+        assertionSets1.add(assertionSet1);
+        assertionSets1.add(assertionSet2);
+        Policy policy1 = Policy.createPolicy(assertionSets1);
+
+        AssertionSet assertionSet3 = AssertionSet.createAssertionSet(assertions);
+        AssertionSet assertionSet4 = AssertionSet.createAssertionSet(assertions);
+        Collection<AssertionSet> assertionSets2 = new LinkedList<AssertionSet>();
+        assertionSets1.add(assertionSet3);
+        assertionSets1.add(assertionSet4);
+        Policy policy2 = Policy.createPolicy(assertionSets2);
+
+        policies.add(policy1);
+        policies.add(policy2);
+
+        Policy expResult = Policy.createNullPolicy();
+        final PolicyMerger instance = PolicyMerger.getMerger();
+        final Policy result = instance.merge(policies);
+        assertEquals(expResult, result);
     }
 
 }
