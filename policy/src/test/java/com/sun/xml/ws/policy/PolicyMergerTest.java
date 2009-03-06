@@ -255,22 +255,8 @@ public class PolicyMergerTest extends TestCase {
      */
     public void testMergeEmptyAlternatives() {
         final Collection<Policy> policies = new LinkedList<Policy>();
-        final Collection<PolicyAssertion> assertions = new LinkedList<PolicyAssertion>();
-
-        AssertionSet assertionSet1 = AssertionSet.createAssertionSet(assertions);
-        AssertionSet assertionSet2 = AssertionSet.createAssertionSet(assertions);
-        Collection<AssertionSet> assertionSets1 = new LinkedList<AssertionSet>();
-        assertionSets1.add(assertionSet1);
-        assertionSets1.add(assertionSet2);
-        Policy policy1 = Policy.createPolicy(assertionSets1);
-
-        AssertionSet assertionSet3 = AssertionSet.createAssertionSet(assertions);
-        AssertionSet assertionSet4 = AssertionSet.createAssertionSet(assertions);
-        Collection<AssertionSet> assertionSets2 = new LinkedList<AssertionSet>();
-        assertionSets1.add(assertionSet3);
-        assertionSets1.add(assertionSet4);
-        Policy policy2 = Policy.createPolicy(assertionSets2);
-
+        final Policy policy1 = Policy.createNullPolicy();
+        final Policy policy2 = Policy.createNullPolicy();
         policies.add(policy1);
         policies.add(policy2);
 
