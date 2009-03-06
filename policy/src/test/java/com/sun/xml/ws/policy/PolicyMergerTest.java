@@ -266,4 +266,27 @@ public class PolicyMergerTest extends TestCase {
         assertEquals(expResult, result);
     }
 
+    /**
+     * Test of merge method, of class PolicyMerger.
+     */
+    public void testMergeNoAlternativesId() {
+        final Collection<Policy> policies = new LinkedList<Policy>();
+        final Policy policy1 = Policy.createNullPolicy(null, "id1");
+        final Policy policy2 = Policy.createNullPolicy(null, "id2");
+        policies.add(policy1);
+        policies.add(policy2);
+
+        Policy expResult = Policy.createNullPolicy();
+        final PolicyMerger instance = PolicyMerger.getMerger();
+        final Policy result = instance.merge(policies);
+
+        assertEquals(expResult, result);
+        final String expResult1 = "id1-id2";
+        final String expResult2 = "id2-id1";
+        final String id = result.getId();
+        if (!expResult1.equals(id)) {
+            assertEquals(expResult2, id);
+        }
+    }
+
 }
