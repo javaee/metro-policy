@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -57,10 +57,95 @@ import javax.xml.namespace.QName;
  * computing and obtaining effective policy on each scope.
  *
  * TODO: rename createWsdlMessageScopeKey to createWsdlInputOutputMessageScopeKey
+ *
+ * @author Fabian Ritzmann
  */
 public final class PolicyMap implements Iterable<Policy> {
    private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyMap.class);
     
+    private static final PolicyMapKeyHandler serviceKeyHandler = new PolicyMapKeyHandler() {
+        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
+            return key1.getService().equals(key2.getService());
+        }
+
+        public int generateHashCode(final PolicyMapKey key) {
+            int result = 17;
+
+            result = 37 * result + key.getService().hashCode();
+
+            return result;
+        }
+    };
+
+    private static final PolicyMapKeyHandler endpointKeyHandler = new PolicyMapKeyHandler() {
+        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
+            boolean retVal = true;
+
+            retVal = retVal && key1.getService().equals(key2.getService());
+            retVal = retVal && ((key1.getPort() == null) ? key2.getPort() == null : key1.getPort().equals(key2.getPort()));
+
+            return retVal;
+        }
+
+        public int generateHashCode(final PolicyMapKey key) {
+            int result = 17;
+
+            result = 37 * result + key.getService().hashCode();
+            result = 37 * result + ((key.getPort() == null) ? 0 : key.getPort().hashCode());
+
+            return result;
+        }
+    };
+
+    private static final PolicyMapKeyHandler operationAndInputOutputMessageKeyHandler = new PolicyMapKeyHandler() {
+        // we use the same algorithm to handle operation and input/output message keys
+
+        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
+            boolean retVal = true;
+
+            retVal = retVal && key1.getService().equals(key2.getService());
+            retVal = retVal && ((key1.getPort() == null) ? key2.getPort() == null : key1.getPort().equals(key2.getPort()));
+            retVal = retVal && ((key1.getOperation() == null) ? key2.getOperation() == null : key1.getOperation().equals(key2.getOperation()));
+
+            return retVal;
+        }
+
+        public int generateHashCode(final PolicyMapKey key) {
+            int result = 17;
+
+            result = 37 * result + key.getService().hashCode();
+            result = 37 * result + ((key.getPort() == null) ? 0 : key.getPort().hashCode());
+            result = 37 * result + ((key.getOperation() == null) ? 0 : key.getOperation().hashCode());
+
+            return result;
+        }
+    };
+
+    private static final PolicyMapKeyHandler faultMessageHandler = new PolicyMapKeyHandler() {
+        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
+            boolean retVal = true;
+
+            retVal = retVal && key1.getService().equals(key2.getService());
+            retVal = retVal && ((key1.getPort() == null) ? key2.getPort() == null : key1.getPort().equals(key2.getPort()));
+            retVal = retVal && ((key1.getOperation() == null) ? key2.getOperation() == null : key1.getOperation().equals(key2.getOperation()));
+            retVal = retVal && ((key1.getFaultMessage() == null) ? key2.getFaultMessage() == null : key1.getFaultMessage().equals(key2.getFaultMessage()));
+
+            return retVal;
+        }
+
+        public int generateHashCode(final PolicyMapKey key) {
+            int result = 17;
+
+            result = 37 * result + key.getService().hashCode();
+            result = 37 * result + ((key.getPort() == null) ? 0 : key.getPort().hashCode());
+            result = 37 * result + ((key.getOperation() == null) ? 0 : key.getOperation().hashCode());
+            result = 37 * result + ((key.getFaultMessage() == null) ? 0 : key.getFaultMessage().hashCode());
+
+            return result;
+        }
+    };
+    
+
     static enum ScopeType {
         SERVICE,
         ENDPOINT,
@@ -69,7 +154,7 @@ public final class PolicyMap implements Iterable<Policy> {
         OUTPUT_MESSAGE,
         FAULT_MESSAGE
     }
-    
+
     private static final class ScopeMap implements Iterable<Policy> {
         private final Map<PolicyMapKey, PolicyScope> internalMap = new HashMap<PolicyMapKey, PolicyScope>();
         private final PolicyMapKeyHandler scopeKeyHandler;
@@ -78,11 +163,6 @@ public final class PolicyMap implements Iterable<Policy> {
         ScopeMap(final PolicyMerger merger, final PolicyMapKeyHandler scopeKeyHandler) {
             this.merger = merger;
             this.scopeKeyHandler = scopeKeyHandler;
-        }
-        
-        Policy getEffectivePolicy(final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-            final PolicyScope scope = internalMap.get(createLocalCopy(key));
-            return (scope == null) ? null : scope.getEffectivePolicy(namespaces, merger);
         }
         
         Policy getEffectivePolicy(final PolicyMapKey key) throws PolicyException {
@@ -134,7 +214,7 @@ public final class PolicyMap implements Iterable<Policy> {
             
             final PolicyMapKey localKeyCopy = new PolicyMapKey(key);
             localKeyCopy.setHandler(scopeKeyHandler);
-            
+                    
             return localKeyCopy;
         }
         
@@ -173,92 +253,12 @@ public final class PolicyMap implements Iterable<Policy> {
     
     private static final PolicyMerger merger = PolicyMerger.getMerger();
     
-    private final ScopeMap serviceMap = new ScopeMap(merger, new PolicyMapKeyHandler() {
-        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
-            return key1.service.equals(key2.service);
-        }
-        
-        public int generateHashCode(final PolicyMapKey key) {
-            int result = 17;
-            
-            result = 37 * result + key.service.hashCode();
-            
-            return result;
-        }
-    });
-    
-    private final ScopeMap endpointMap = new ScopeMap(merger, new PolicyMapKeyHandler() {
-        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
-            boolean retVal = true;
-            
-            retVal = retVal && key1.service.equals(key2.service);
-            retVal = retVal && ((key1.port == null) ? key2.port == null : key1.port.equals(key2.port));
-            
-            return retVal;
-        }
-        
-        public int generateHashCode(final PolicyMapKey key) {
-            int result = 17;
-            
-            result = 37 * result + key.service.hashCode();
-            result = 37 * result + ((key.port == null) ? 0 : key.port.hashCode());
-            
-            return result;
-        }
-    });
-    
-    private final PolicyMapKeyHandler operationAndInputOutputMessageKeyHandler = new PolicyMapKeyHandler() {
-        // we use the same algorithm to handle operation and input/output message keys
-        
-        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
-            boolean retVal = true;
-            
-            retVal = retVal && key1.service.equals(key2.service);
-            retVal = retVal && ((key1.port == null) ? key2.port == null : key1.port.equals(key2.port));
-            retVal = retVal && ((key1.operation == null) ? key2.operation == null : key1.operation.equals(key2.operation));
-            
-            return retVal;
-        }
-        
-        public int generateHashCode(final PolicyMapKey key) {
-            int result = 17;
-            
-            result = 37 * result + key.service.hashCode();
-            result = 37 * result + ((key.port == null) ? 0 : key.port.hashCode());
-            result = 37 * result + ((key.operation == null) ? 0 : key.operation.hashCode());
-            
-            return result;
-        }
-    };
-    
-    
+    private final ScopeMap serviceMap = new ScopeMap(merger, serviceKeyHandler);
+    private final ScopeMap endpointMap = new ScopeMap(merger, endpointKeyHandler);
     private final ScopeMap operationMap = new ScopeMap(merger, operationAndInputOutputMessageKeyHandler);
     private final ScopeMap inputMessageMap = new ScopeMap(merger, operationAndInputOutputMessageKeyHandler);
     private final ScopeMap outputMessageMap = new ScopeMap(merger, operationAndInputOutputMessageKeyHandler);
-    
-    private final ScopeMap faultMessageMap = new ScopeMap(merger, new PolicyMapKeyHandler() {
-        public boolean areEqual(final PolicyMapKey key1, final PolicyMapKey key2) {
-            boolean retVal = true;
-            
-            retVal = retVal && key1.service.equals(key2.service);
-            retVal = retVal && ((key1.port == null) ? key2.port == null : key1.port.equals(key2.port));
-            retVal = retVal && ((key1.operation == null) ? key2.operation == null : key1.operation.equals(key2.operation));
-            retVal = retVal && ((key1.faultMessage == null) ? key2.faultMessage == null : key1.faultMessage.equals(key2.faultMessage));
-            
-            return retVal;
-        }
-        
-        public int generateHashCode(final PolicyMapKey key) {
-            int result = 17;
-            
-            result = 37 * result + key.service.hashCode();
-            result = 37 * result + ((key.port == null) ? 0 : key.port.hashCode());
-            result = 37 * result + ((key.operation == null) ? 0 : key.operation.hashCode());
-            result = 37 * result + ((key.faultMessage == null) ? 0 : key.faultMessage.hashCode());
-            
-            return result;
-        }
-    });
+    private final ScopeMap faultMessageMap = new ScopeMap(merger, faultMessageHandler);
     
     /**
      * This constructor is private to prevent direct instantiation from outside of the class
@@ -307,36 +307,6 @@ public final class PolicyMap implements Iterable<Policy> {
     
     public Policy getFaultMessageEffectivePolicy(final PolicyMapKey key) throws PolicyException {
         return faultMessageMap.getEffectivePolicy(key);
-    }
-    
-    public Policy getServiceEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return serviceMap.getEffectivePolicy(key, namespaces);
-    }
-    
-    public Policy getEndpointEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return endpointMap.getEffectivePolicy(key, namespaces);
-    }
-    
-    public Policy getOperationEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return operationMap.getEffectivePolicy(key, namespaces);
-    }
-    
-    public Policy getInputMessageEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return inputMessageMap.getEffectivePolicy(key, namespaces);
-    }
-    
-    public Policy getOutputMessageEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return outputMessageMap.getEffectivePolicy(key, namespaces);
-    }
-    
-    public Policy getFaultMessageEffectivePolicy(
-            final PolicyMapKey key, final Collection<String> namespaces) throws PolicyException {
-        return faultMessageMap.getEffectivePolicy(key, namespaces);
     }
     
     /**
@@ -560,7 +530,7 @@ public final class PolicyMap implements Iterable<Policy> {
         if (service == null) {
             throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0031_SERVICE_PARAM_MUST_NOT_BE_NULL()));
         }
-        return new PolicyMapKey(service, null, null);
+        return new PolicyMapKey(service, null, null, serviceKeyHandler);
     }
     
     /**
@@ -575,7 +545,7 @@ public final class PolicyMap implements Iterable<Policy> {
         if (service == null || port == null) {
             throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0033_SERVICE_AND_PORT_PARAM_MUST_NOT_BE_NULL(service, port)));
         }
-        return new PolicyMapKey(service, port, null);
+        return new PolicyMapKey(service, port, null, endpointKeyHandler);
     }
     
     /**
@@ -630,7 +600,7 @@ public final class PolicyMap implements Iterable<Policy> {
             throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0030_SERVICE_PORT_OPERATION_FAULT_MSG_PARAM_MUST_NOT_BE_NULL(service, port, operation, fault)));
         }
         
-        return new PolicyMapKey(service, port, operation, fault);
+        return new PolicyMapKey(service, port, operation, fault, faultMessageHandler);
     }
     
     private static PolicyMapKey createOperationOrInputOutputMessageKey(final QName service, final QName port, final QName operation) {
@@ -638,7 +608,7 @@ public final class PolicyMap implements Iterable<Policy> {
             throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0029_SERVICE_PORT_OPERATION_PARAM_MUST_NOT_BE_NULL(service, port, operation)));
         }
         
-        return new PolicyMapKey(service, port, operation);
+        return new PolicyMapKey(service, port, operation, operationAndInputOutputMessageKeyHandler);
     }
     
     @Override

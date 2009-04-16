@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,6 +46,8 @@ import java.util.List;
 /**
  * A policy scope is a collection of equally ranked elements or subjects that
  * hold policies
+ *
+ * @author Fabian Ritzmann
  */
 final class PolicyScope {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyScope.class);
@@ -84,21 +86,6 @@ final class PolicyScope {
     }
     
     /**
-     * Returns policies of the scope merged into one policy.
-     *<p/>
-     * Only policies with vocabulary containing the namespaces provided are merged into effective policy.
-     *
-     * @return effective policy with respect to the provided namespaces.
-     */
-    Policy getEffectivePolicy(final Collection<String> namespaces, final PolicyMerger merger) throws PolicyException {
-        final LinkedList<Policy> policies = new LinkedList<Policy>();
-        for (PolicySubject subject: subjects) {
-            policies.add(subject.getEffectivePolicy(namespaces, merger));
-        }
-        return merger.merge(policies);
-    }
-    
-    /**
      * Returns all subjects contained by this scope
      *
      * @return The subjects contained by this scope
@@ -111,6 +98,7 @@ final class PolicyScope {
     /**
      * An {@code Object.toString()} method override.
      */
+    @Override
     public String toString() {
         return toString(0, new StringBuffer()).toString();
     }

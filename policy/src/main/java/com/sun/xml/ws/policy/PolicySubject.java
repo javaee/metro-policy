@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -46,6 +46,8 @@ import java.util.List;
 /**
  * A PolicySubject is an entity (e.g., a port, operation, binding,
  * service) with which a policy can be associated.
+ *
+ * @author Fabian Ritzmann
  */
 public final class PolicySubject {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicySubject.class);
@@ -117,20 +119,6 @@ public final class PolicySubject {
     }
     
     /**
-     * Retrieve only the assertions of the effective policy that match the given set of
-     * namespaces
-     */
-    public Policy getEffectivePolicy(
-            final Collection<String> namespaces, final PolicyMerger merger) throws PolicyException {
-        final LinkedList<Policy> reducedPolicies = new LinkedList<Policy>();
-        for (Policy policy : policies) {
-            // Policy reducedPolicy = policy.reduce(namespaces);
-            // reducedPolicies.add(reducedPolicy);
-        }
-        return merger.merge(reducedPolicies);
-    }
-    
-    /**
      * A unique identifier of the subject
      *
      * Subjects may not always be uniquely identifiable. Also, once the subject is
@@ -144,6 +132,7 @@ public final class PolicySubject {
     /**
      * An {@code Object.toString()} method override.
      */
+    @Override
     public String toString() {
         return toString(0, new StringBuffer()).toString();
     }

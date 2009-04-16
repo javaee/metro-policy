@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,6 +38,7 @@ package com.sun.xml.ws.policy;
 
 import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -50,37 +51,32 @@ import javax.xml.namespace.QName;
  * 
  * 
  * @author Marek Potociar (marek.potociar at sun.com)
+ * @author Fabian Ritzmann
  */
 final public class PolicyMapKey  {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyMapKey.class);
     
-    QName service;
-    QName port;
-    QName operation;
-    QName faultMessage;
-//    QName inputMessage;
-//    QName outputMessage;
+    private final QName service;
+    private final QName port;
+    private final QName operation;
+    private final QName faultMessage;
     
     private PolicyMapKeyHandler handler;
     
-    PolicyMapKey(final QName service, final QName port, final QName operation) {
-        this.service = service;
-        this.port = port;
-        this.operation = operation;
-        
-//        this.inputMessage = inputMessage;
-//        this.outputMessage = outputMessage;
+    PolicyMapKey(final QName service, final QName port, final QName operation, final PolicyMapKeyHandler handler) {
+        this(service, port, operation, null, handler);
     }
     
-    PolicyMapKey(final QName service, final QName port, final QName operation, final QName faultMessage) {
+    PolicyMapKey(final QName service, final QName port, final QName operation, final QName faultMessage, final PolicyMapKeyHandler handler) {
+        if (handler == null) {
+            throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0046_POLICY_MAP_KEY_HANDLER_NOT_SET()));
+        }
+
         this.service = service;
         this.port = port;
         this.operation = operation;
-        
-//        this.inputMessage = inputMessage;
-//        this.outputMessage = outputMessage;
-        
         this.faultMessage = faultMessage;
+        this.handler = handler;
     }
     
     PolicyMapKey(final PolicyMapKey that) {
@@ -88,17 +84,33 @@ final public class PolicyMapKey  {
         this.port = that.port;
         this.operation = that.operation;
         this.faultMessage = that.faultMessage;
-
-//        this.inputMessage = that.inputMessage;
-//        this.outputMessage = that.outputMessage;
-
         this.handler = that.handler;
     }
-    
-    void setHandler(final PolicyMapKeyHandler handler) {
+
+    QName getOperation() {
+        return operation;
+    }
+
+    QName getPort() {
+        return port;
+    }
+
+    QName getService() {
+        return service;
+    }
+
+    void setHandler(PolicyMapKeyHandler handler) {
+        if (handler == null) {
+            throw LOGGER.logSevereException(new IllegalArgumentException(LocalizationMessages.WSP_0046_POLICY_MAP_KEY_HANDLER_NOT_SET()));
+        }
+
         this.handler = handler;
     }
-    
+
+    public QName getFaultMessage() {
+        return faultMessage;
+    }
+
     @Override
     public boolean equals(final Object that) {
         if (this == that) {
@@ -107,10 +119,6 @@ final public class PolicyMapKey  {
         
         if (that == null) {
             return false;
-        }
-            
-        if (handler == null) {
-            throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0046_POLICY_MAP_KEY_HANDLER_NOT_SET()));
         }
         
         if (that instanceof PolicyMapKey) {
@@ -122,10 +130,6 @@ final public class PolicyMapKey  {
 
     @Override
     public int hashCode() {
-        if (handler == null) {
-            throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0046_POLICY_MAP_KEY_HANDLER_NOT_SET()));
-        }
-
         return handler.generateHashCode(this);
     }    
     
