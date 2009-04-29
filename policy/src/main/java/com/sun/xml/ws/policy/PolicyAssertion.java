@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,6 +54,7 @@ import com.sun.xml.ws.policy.sourcemodel.ModelNode;
  * or {@link ComplexAssertion} should be used as a base class instead.
  * 
  * @author Marek Potociar (marek.potociar at sun.com)
+ * @author Fabian Ritzmann
  */
 public abstract class PolicyAssertion {
 
@@ -285,7 +286,7 @@ public abstract class PolicyAssertion {
         if (hasParameters()) {
             buffer.append(innerIndent).append("parameters {").append(PolicyUtils.Text.NEW_LINE);
             for (PolicyAssertion parameter : parameters) {
-                parameter.toString(indentLevel + 2, buffer);
+                parameter.toString(indentLevel + 2, buffer).append(PolicyUtils.Text.NEW_LINE);
             }
             buffer.append(innerIndent).append('}').append(PolicyUtils.Text.NEW_LINE);
         } else {
