@@ -49,7 +49,7 @@ import java.util.Collection;
 public class MockPolicyAssertionCreator  implements PolicyAssertionCreator {
 
     public String[] getSupportedDomainNamespaceURIs() {
-        return null;
+        return new String[]{ "http://example.net/" };
     }
 
     public PolicyAssertion createAssertion(AssertionData data, Collection<PolicyAssertion> assertionParameters, AssertionSet nestedAlternative, PolicyAssertionCreator defaultCreator) throws AssertionCreationException {
