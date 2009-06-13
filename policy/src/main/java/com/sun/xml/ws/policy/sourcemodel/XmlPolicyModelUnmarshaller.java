@@ -295,7 +295,10 @@ final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
      */
     private XMLEventReader createXMLEventReader(final Object storage)
             throws PolicyException {
-        if (!(storage instanceof Reader)) {
+        if (storage instanceof XMLEventReader) {
+            return (XMLEventReader) storage;
+        }
+        else if (!(storage instanceof Reader)) {
             throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0022_STORAGE_TYPE_NOT_SUPPORTED(storage.getClass().getName())));
         }
 
