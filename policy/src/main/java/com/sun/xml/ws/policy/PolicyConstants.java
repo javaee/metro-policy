@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -91,7 +91,12 @@ public final class PolicyConstants {
      * Identifier of the client-side configuration file 
      */
     public static final String CLIENT_CONFIGURATION_IDENTIFIER = "client";
-    
+
+    /**
+     * XML namespace for management policy assertions
+     */
+    public static final String SUN_MANAGEMENT_NAMESPACE = "http://java.sun.com/xml/ns/metro/management";
+
     /**
      * Prevent instantiation of this class.
      */
