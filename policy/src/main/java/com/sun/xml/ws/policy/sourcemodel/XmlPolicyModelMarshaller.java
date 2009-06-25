@@ -61,7 +61,9 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
     }
     
     public void marshal(final PolicySourceModel model, final Object storage) throws PolicyException {
-        if (storage instanceof TypedXmlWriter) {
+        if (storage instanceof StaxSerializer) {
+            marshal(model, (StaxSerializer) storage);
+        } else if (storage instanceof TypedXmlWriter) {
             marshal(model, (TypedXmlWriter) storage);
         } else if (storage instanceof XMLStreamWriter) {
             marshal(model, (XMLStreamWriter) storage);
@@ -76,6 +78,21 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
         }
     }
     
+    /**
+     * Marshal a policy onto the given StaxSerializer.
+     *
+     * @param model A policy source model.
+     * @param writer A Stax serializer.
+     */
+    private void marshal(final PolicySourceModel model, final StaxSerializer writer) throws PolicyException {
+        final TypedXmlWriter policy = TXW.create(model.getNamespaceVersion().asQName(XmlToken.Policy), TypedXmlWriter.class, writer);
+
+        marshalDefaultPrefixes(model, policy);
+        marshalPolicyAttributes(model, policy);
+        marshal(model.getNamespaceVersion(), model.getRootNode(), policy);
+        policy.commit();
+    }
+
     /**
      * Marshal a policy onto the given TypedXmlWriter.
      *
