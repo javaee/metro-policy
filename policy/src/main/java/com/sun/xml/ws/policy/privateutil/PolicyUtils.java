@@ -334,7 +334,8 @@ public final class PolicyUtils {
         }
         
         private static String createExceptionMessage(final Object target, final Object[] parameters, final String methodName) {
-            return LocalizationMessages.WSP_0061_METHOD_INVOCATION_FAILED(target.getClass().getName(), methodName, Arrays.asList(parameters).toString());
+            return LocalizationMessages.WSP_0061_METHOD_INVOCATION_FAILED(target.getClass().getName(), methodName,
+                    parameters == null ? null : Arrays.asList(parameters).toString());
         }
     }
     
@@ -462,7 +463,7 @@ public final class PolicyUtils {
             for (int i=0; i < quoted.length(); i++) {    // iterarate over all chars in the input
                 c = quoted.charAt(i);
                 if ('%' == c) {                         // next escape sequence found
-                    if ((i + 2) > quoted.length()) {
+                    if ((i + 2) >= quoted.length()) {
                         throw LOGGER.logSevereException(new RuntimePolicyUtilsException(LocalizationMessages.WSP_0079_ERROR_WHILE_RFC_2396_UNESCAPING(quoted)), false);
                     }
                     hi = Character.digit(quoted.charAt(++i), 16);

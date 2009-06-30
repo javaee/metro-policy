@@ -243,11 +243,24 @@ public class PolicyUtilsTest extends TestCase {
      * Test of invoke method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Reflection.
      */
     public void testReflectionInvoke() throws Exception {
-        
-        // TODO review the generated test code and remove the default call to fail.
-        // fail("The test case is a prototype.");
+        final Object target = new Object() { public String hum() { return "hum"; } };
+        final String result = PolicyUtils.Reflection.invoke(target, "hum", String.class, null, null);
+        assertEquals("hum", result);
     }
     
+    /**
+     * Test of invoke method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Reflection.
+     */
+    public void testReflectionInvokeFail() throws Exception {
+        final Object target = new Object() { public String hum() { return "hum"; } };
+        try {
+            final String result = PolicyUtils.Reflection.invoke(target, "humv", String.class, null, null);
+            fail("Expected RuntimePolicyUtilsException, instead got " + result);
+        } catch (RuntimePolicyUtilsException e) {
+            // expected
+        }
+    }
+
     /**
      * Test of generateFullName method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
      */
@@ -301,4 +314,13 @@ public class PolicyUtilsTest extends TestCase {
         assertEquals("hello Vasku", PolicyUtils.Rfc2396.unquote("hello%20Vasku"));
     }
     
+    public void testRtf2396UnquoteCutOff() {
+        try {
+            final String result = PolicyUtils.Rfc2396.unquote("hello%2");
+            fail("Expected RuntimePolicyUtilsException, got " + result);
+        } catch (RuntimePolicyUtilsException e) {
+            // expected
+        }
+    }
+
 }
