@@ -33,62 +33,35 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 package com.sun.xml.ws.policy.privateutil;
 
+import com.sun.istack.logging.Logger;
 import java.lang.reflect.Field;
-import java.util.logging.Level;
-
-import static com.sun.xml.ws.policy.privateutil.PolicyUtils.Commons.getCallerMethodName;
 
 /**
  * This is a helper class that provides some conveniece methods wrapped around the
  * standard {@link java.util.logging.Logger} interface.
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
-public final class PolicyLogger {
+public final class PolicyLogger extends Logger {
 
     /**
      * If we run with JAX-WS, we are using its logging domain (appended with ".wspolicy").
      * Otherwise we default to "wspolicy".
      */
     private static final String POLICY_PACKAGE_ROOT = "com.sun.xml.ws.policy";
-    private static final String LOGGING_SUBSYSTEM_NAME;
-    private static final Level METHOD_CALL_LEVEL_VALUE = Level.FINEST;
-
-    static {
-        String loggingSubsystemName = "wspolicy";
-        try {
-            // Looking up JAX-WS class at run-time, so that we don't need to depend
-            // on it at compile-time.
-            Class jaxwsConstants = Class.forName("com.sun.xml.ws.util.Constants");
-            Field loggingDomainField = jaxwsConstants.getField("LoggingDomain");
-            Object loggingDomain = loggingDomainField.get(null);
-            loggingSubsystemName = loggingDomain.toString().concat(".wspolicy");
-        } catch (RuntimeException e) {
-            // if we catch an exception, we fall back to default name
-            loggingSubsystemName = "wspolicy";
-        } catch (Exception e) {
-            // if we catch an exception, we fall back to default name
-            loggingSubsystemName = "wspolicy";
-        } finally {
-            LOGGING_SUBSYSTEM_NAME = loggingSubsystemName;
-        }
-    }
-    private final String componentClassName;
-    private final java.util.logging.Logger logger;
 
     /**
-     * Prevents creation of a new instance of this PolicyLogger
+     * Make sure this class cannot be instantiated by client code.
+     *
+     * @param policyLoggerName The name of the subsystem to be logged.
+     * @param className The fully qualified class name.
      */
-    private PolicyLogger(final String componentName) {
-        this.componentClassName = "[" + componentName + "] ";
-
-        if (componentName.startsWith(POLICY_PACKAGE_ROOT)) {
-            this.logger = java.util.logging.Logger.getLogger(LOGGING_SUBSYSTEM_NAME + componentName.substring(POLICY_PACKAGE_ROOT.length()));
-        } else {
-            this.logger = java.util.logging.Logger.getLogger(LOGGING_SUBSYSTEM_NAME + "." + componentName);            
-        }
+    private PolicyLogger(final String policyLoggerName, final String className) {
+        super(policyLoggerName, className);
     }
 
     /**
@@ -101,324 +74,29 @@ public final class PolicyLogger {
      * @throws NullPointerException if the componentClass parameter is {@code null}.
      */
     public static PolicyLogger getLogger(final Class componentClass) {
-        return new PolicyLogger(componentClass.getName());
-    }
+        final String componentClassName = componentClass.getName();
 
-    public void log(final Level level, final String message) {
-        if (!this.logger.isLoggable(level)) {
-            return;
+        if (componentClassName.startsWith(POLICY_PACKAGE_ROOT)) {
+            return new PolicyLogger(getLoggingSubsystemName() + componentClassName.substring(POLICY_PACKAGE_ROOT.length()),
+                    componentClassName);
+        } else {
+            return new PolicyLogger(getLoggingSubsystemName() + "." + componentClassName, componentClassName);
         }
-        logger.logp(level, componentClassName, getCallerMethodName(), message);
     }
 
-    public void log(final Level level, final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(level)) {
-            return;
+    private static String getLoggingSubsystemName() {
+        String loggingSubsystemName = "wspolicy";
+        try {
+            // Looking up JAX-WS class at run-time, so that we don't need to depend
+            // on it at compile-time.
+            Class jaxwsConstants = Class.forName("com.sun.xml.ws.util.Constants");
+            Field loggingDomainField = jaxwsConstants.getField("LoggingDomain");
+            Object loggingDomain = loggingDomainField.get(null);
+            loggingSubsystemName = loggingDomain.toString().concat(".wspolicy");
+        } catch (Exception e) {
+            // if we catch an exception, we stick with the default name
         }
-        logger.logp(level, componentClassName, getCallerMethodName(), message, thrown);
+        return loggingSubsystemName;
     }
 
-    public void finest(final String message) {
-        if (!this.logger.isLoggable(Level.FINEST)) {
-            return;
-        }
-        logger.logp(Level.FINEST, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void finest(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.FINEST)) {
-            return;
-        }
-        logger.logp(Level.FINEST, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void finer(final String message) {
-        if (!this.logger.isLoggable(Level.FINER)) {
-            return;
-        }
-        logger.logp(Level.FINER, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void finer(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.FINER)) {
-            return;
-        }
-        logger.logp(Level.FINER, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void fine(final String message) {
-        if (!this.logger.isLoggable(Level.FINE)) {
-            return;
-        }
-        logger.logp(Level.FINE, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void fine(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.FINE)) {
-            return;
-        }
-        logger.logp(Level.FINE, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void info(final String message) {
-        if (!this.logger.isLoggable(Level.INFO)) {
-            return;
-        }
-        logger.logp(Level.INFO, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void info(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.INFO)) {
-            return;
-        }
-        logger.logp(Level.INFO, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void config(final String message) {
-        if (!this.logger.isLoggable(Level.CONFIG)) {
-            return;
-        }
-        logger.logp(Level.CONFIG, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void config(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.CONFIG)) {
-            return;
-        }
-        logger.logp(Level.CONFIG, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void warning(final String message) {
-        if (!this.logger.isLoggable(Level.WARNING)) {
-            return;
-        }
-        logger.logp(Level.WARNING, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void warning(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.WARNING)) {
-            return;
-        }
-        logger.logp(Level.WARNING, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public void severe(final String message) {
-        if (!this.logger.isLoggable(Level.SEVERE)) {
-            return;
-        }
-        logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), message);
-    }
-
-    public void severe(final String message, final Throwable thrown) {
-        if (!this.logger.isLoggable(Level.SEVERE)) {
-            return;
-        }
-        logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), message, thrown);
-    }
-
-    public boolean isMethodCallLoggable() {
-        return this.logger.isLoggable(METHOD_CALL_LEVEL_VALUE);
-    }
-
-    public boolean isLoggable(final Level level) {
-        return this.logger.isLoggable(level);
-    }
-
-    public void setLevel(final Level level) {
-        this.logger.setLevel(level);
-    }
-
-    public void entering() {
-        if (!this.logger.isLoggable(METHOD_CALL_LEVEL_VALUE)) {
-            return;
-        }
-
-        logger.entering(componentClassName, getCallerMethodName());
-    }
-
-    public void entering(final Object... parameters) {
-        if (!this.logger.isLoggable(METHOD_CALL_LEVEL_VALUE)) {
-            return;
-        }
-
-        logger.entering(componentClassName, getCallerMethodName(), parameters);
-    }
-
-    public void exiting() {
-        if (!this.logger.isLoggable(METHOD_CALL_LEVEL_VALUE)) {
-            return;
-        }
-        logger.exiting(componentClassName, getCallerMethodName());
-    }
-
-    public void exiting(final Object result) {
-        if (!this.logger.isLoggable(METHOD_CALL_LEVEL_VALUE)) {
-            return;
-        }
-        logger.exiting(componentClassName, getCallerMethodName(), result);
-    }
-
-    /**
-     * Method logs {@code exception}'s message as a {@code SEVERE} logging level
-     * message.
-     * <p/>
-     * If {@code cause} parameter is not {@code null}, it is logged as well and
-     * {@code exception} original cause is initialized with instance referenced
-     * by {@code cause} parameter.
-     *
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param cause initial cause of the exception that should be logged as well
-     *        and set as {@code exception}'s original cause. May be {@code null}.
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logSevereException(final T exception, final Throwable cause) {
-        if (this.logger.isLoggable(Level.SEVERE)) {
-            if (cause == null) {
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage());
-            } else {
-                exception.initCause(cause);
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage(), cause);
-            }
-        }
-
-        return exception;
-    }
-
-    /**
-     * Method logs {@code exception}'s message as a {@code SEVERE} logging level
-     * message.
-     * <p/>
-     * If {@code logCause} parameter is {@code true}, {@code exception}'s original
-     * cause is logged as well (if exists). This may be used in cases when
-     * {@code exception}'s class provides constructor to initialize the original
-     * cause. In such case you do not need to use
-     * {@link #logSevereException(Throwable, Throwable)}
-     * method version but you might still want to log the original cause as well.
-     *
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param logCause deterimnes whether initial cause of the exception should
-     *        be logged as well
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logSevereException(final T exception, final boolean logCause) {
-        if (this.logger.isLoggable(Level.SEVERE)) {
-            if (logCause && exception.getCause() != null) {
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage(), exception.getCause());
-            } else {
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage());
-            }
-        }
-
-        return exception;
-    }
-
-    /**
-     * Same as {@link #logSevereException(Throwable, boolean) logSevereException(exception, true)}.
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logSevereException(final T exception) {
-        if (this.logger.isLoggable(Level.SEVERE)) {
-            if (exception.getCause() == null) {
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage());
-            } else {
-                logger.logp(Level.SEVERE, componentClassName, getCallerMethodName(), exception.getMessage(), exception.getCause());
-            }
-        }
-
-        return exception;
-    }
-
-    /**
-     * Method logs {@code exception}'s message at the logging level specified by the
-     * {@code level} argument.
-     * <p/>
-     * If {@code cause} parameter is not {@code null}, it is logged as well and
-     * {@code exception} original cause is initialized with instance referenced
-     * by {@code cause} parameter.
-     *
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param cause initial cause of the exception that should be logged as well
-     *        and set as {@code exception}'s original cause. May be {@code null}.
-     * @param level loging level which should be used for logging
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logException(final T exception, final Throwable cause, final Level level) {
-        if (this.logger.isLoggable(level)) {
-            if (cause == null) {
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage());
-            } else {
-                exception.initCause(cause);
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage(), cause);
-            }
-        }
-
-        return exception;
-    }
-
-    /**
-     * Method logs {@code exception}'s message at the logging level specified by the
-     * {@code level} argument.
-     * <p/>
-     * If {@code logCause} parameter is {@code true}, {@code exception}'s original
-     * cause is logged as well (if exists). This may be used in cases when
-     * {@code exception}'s class provides constructor to initialize the original
-     * cause. In such case you do not need to use
-     * {@link #logException(Throwable, Throwable, Level) logException(exception, cause, level)}
-     * method version but you might still want to log the original cause as well.
-     *
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param logCause deterimnes whether initial cause of the exception should
-     *        be logged as well
-     * @param level loging level which should be used for logging
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logException(final T exception, final boolean logCause, final Level level) {
-        if (this.logger.isLoggable(level)) {
-            if (logCause && exception.getCause() != null) {
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage(), exception.getCause());
-            } else {
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage());
-            }
-        }
-
-        return exception;
-    }
-
-    /**
-     * Same as {@link #logException(Throwable, Throwable, Level) 
-     * logException(exception, true, level)}.
-     * @param <T> the type of the exception
-     * @param exception exception whose message should be logged. Must not be
-     *        {@code null}.
-     * @param level loging level which should be used for logging
-     * @return the same exception instance that was passed in as the {@code exception}
-     *         parameter.
-     */
-    public <T extends Throwable> T logException(final T exception, final Level level) {
-        if (this.logger.isLoggable(level)) {
-            if (exception.getCause() == null) {
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage());
-            } else {
-                logger.logp(level, componentClassName, getCallerMethodName(), exception.getMessage(), exception.getCause());
-            }
-        }
-
-        return exception;
-    }
 }
