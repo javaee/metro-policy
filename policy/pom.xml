@@ -135,6 +135,9 @@
                 <configuration>
                     <source>1.5</source>
                     <target>1.5</target>
+                    <compilerArguments>
+                        <Xlint/>
+                    </compilerArguments>
                 </configuration>
             </plugin>
             

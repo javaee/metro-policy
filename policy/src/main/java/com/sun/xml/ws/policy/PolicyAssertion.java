@@ -261,6 +261,23 @@ public abstract class PolicyAssertion {
     }
 
     /**
+     * Casts the assertion to the implementation type. Returns null if that is not
+     * possible.
+     *
+     * @param <T> The implementation type of the assertion.
+     * @param type The implementation type of the assertion. May not be null.
+     * @return The instance of the implementation type. Null otherwise.
+     */
+    public <T> T getImplementation(Class<T> type) {
+        if (type.isAssignableFrom(this.getClass())) {
+            return type.cast(this);
+        }
+        else {
+            return null;
+        }
+    }
+
+    /**
      * An {@code Object.toString()} method override.
      */
     @Override
