@@ -268,7 +268,7 @@ public abstract class PolicyAssertion {
      * @param type The implementation type of the assertion. May not be null.
      * @return The instance of the implementation type. Null otherwise.
      */
-    public <T> T getImplementation(Class<T> type) {
+    public <T extends PolicyAssertion> T getImplementation(Class<T> type) {
         if (type.isAssignableFrom(this.getClass())) {
             return type.cast(this);
         }
