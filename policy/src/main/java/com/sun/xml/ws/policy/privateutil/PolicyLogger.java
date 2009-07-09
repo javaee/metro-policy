@@ -73,7 +73,7 @@ public final class PolicyLogger extends Logger {
      * @return logger instance preconfigured for use with the component
      * @throws NullPointerException if the componentClass parameter is {@code null}.
      */
-    public static PolicyLogger getLogger(final Class componentClass) {
+    public static PolicyLogger getLogger(final Class<?> componentClass) {
         final String componentClassName = componentClass.getName();
 
         if (componentClassName.startsWith(POLICY_PACKAGE_ROOT)) {
