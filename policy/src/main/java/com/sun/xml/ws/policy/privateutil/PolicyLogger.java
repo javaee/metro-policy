@@ -93,6 +93,9 @@ public final class PolicyLogger extends Logger {
             Field loggingDomainField = jaxwsConstants.getField("LoggingDomain");
             Object loggingDomain = loggingDomainField.get(null);
             loggingSubsystemName = loggingDomain.toString().concat(".wspolicy");
+        } catch (RuntimeException e) {
+            // if we catch an exception, we stick with the default name
+            // this catch is redundant but works around a Findbugs warning
         } catch (Exception e) {
             // if we catch an exception, we stick with the default name
         }
