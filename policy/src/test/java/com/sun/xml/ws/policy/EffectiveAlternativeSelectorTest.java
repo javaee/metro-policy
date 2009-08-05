@@ -41,7 +41,6 @@ import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
 import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import java.util.Arrays;
-import java.util.Collection;
 import javax.xml.namespace.QName;
 import junit.framework.TestCase;
 
