@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -35,8 +35,13 @@
  */
 package com.sun.xml.ws.policy.sourcemodel;
 
+import com.sun.xml.ws.policy.PolicyConstants;
+import com.sun.xml.ws.policy.PolicyException;
+import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
+import com.sun.xml.ws.policy.privateutil.PolicyLogger;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.XmlToken;
+
 import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -53,14 +58,11 @@ import javax.xml.stream.events.Characters;
 import javax.xml.stream.events.EndElement;
 import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
-import com.sun.xml.ws.policy.PolicyConstants;
-import com.sun.xml.ws.policy.PolicyException;
-import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
-import com.sun.xml.ws.policy.privateutil.PolicyLogger;
 
 /**
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
 final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
 
@@ -292,6 +294,10 @@ final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
     /**
      * Method checks if the storage type is supported and transforms it to XMLEventReader instance which is then returned.
      * Throws PolicyException if the transformation is not succesfull or if the storage type is not supported.
+     *
+     * @param storage An XMLEventReader instance.
+     * @return The storage cast to an XMLEventReader.
+     * @throws PolicyException If the XMLEventReader cast failed.
      */
     private XMLEventReader createXMLEventReader(final Object storage)
             throws PolicyException {
@@ -313,6 +319,10 @@ final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
     /**
      * Method checks whether the actual name of the end tag is equal to the expected name - the name of currently unmarshalled
      * XML policy model element. Throws exception, if the two FQNs are not equal as expected.
+     *
+     * @param expected The expected element name.
+     * @param element The actual element.
+     * @throws PolicyException If the actual element name did not match the expected element.
      */
     private void checkEndTagName(final QName expected, final EndElement element) throws PolicyException {
         final QName actual = element.getName();
