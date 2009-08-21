@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,6 +48,7 @@ import java.util.Iterator;
 /**
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
 public final class PolicyModelGenerator {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyModelTranslator.class);
@@ -114,8 +115,9 @@ public final class PolicyModelGenerator {
     /**
      * Iterates through a nested policy and return the corresponding policy info model.
      *
-     * @param policy The nested policy
-     * @return The nested policy translated to the policy info model
+     * @param parentAssertion The parent node.
+     * @param policy The nested policy.
+     * @return The nested policy translated to the policy info model.
      */
     private ModelNode translate(final ModelNode parentAssertion, final NestedPolicy policy) {
         final ModelNode nestedPolicyRoot = parentAssertion.createChildPolicyNode();
@@ -138,7 +140,7 @@ public final class PolicyModelGenerator {
     /**
      * Iterates through all contained assertions and adds them to the info model.
      *
-     * @param assertions The set of contained assertions
+     * @param assertionParametersIterator The contained assertions.
      * @param assertionNode The node to which the assertions are added as child nodes
      */
     private void translate(final Iterator<PolicyAssertion> assertionParametersIterator, final ModelNode assertionNode) {
