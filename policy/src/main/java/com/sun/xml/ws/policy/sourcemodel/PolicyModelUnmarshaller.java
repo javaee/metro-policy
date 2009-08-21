@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -42,7 +42,11 @@ import com.sun.xml.ws.policy.PolicyException;
  * Abstract class defines interface for policy model unmarshaller implementations that are specific to underlying
  * persistence layer.
  *
+ * Code that depends on JAX-WS should use com.sun.xml.ws.api.policy.ModelUnmarshaller
+ * instead of this class.
+ *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
 public abstract class PolicyModelUnmarshaller {
     private static final PolicyModelUnmarshaller xmlUnmarshaller = new XmlPolicyModelUnmarshaller();
@@ -70,6 +74,9 @@ public abstract class PolicyModelUnmarshaller {
     /**
      * Factory method that returns policy model unmarshaller able to unmarshal 
      * policy expressions from XML source.
+     *
+     * Code that depends on JAX-WS should use com.sun.xml.ws.api.policy.ModelUnmarshaller.getUnmarshaller()
+     * instead of this method.
      *
      * @return policy model unmarshaller able to unmarshal policy expressions from XML source.
      */

@@ -43,21 +43,26 @@ import com.sun.xml.ws.policy.PolicyAssertion;
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
+
 import java.util.Iterator;
 
 /**
+ * Translate a policy into a PolicySourceModel.
+ *
+ * Code that depends on JAX-WS should use com.sun.xml.ws.api.policy.ModelGenerator
+ * instead of this class.
  *
  * @author Marek Potociar
  * @author Fabian Ritzmann
  */
-public final class PolicyModelGenerator {
+public class PolicyModelGenerator {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyModelTranslator.class);
     private static final PolicyModelGenerator generator = new PolicyModelGenerator();
     
     /**
-     * This private constructor avoids direct instantiation from outside of the class
+     * This protected constructor avoids direct instantiation from outside of the class
      */
-    private PolicyModelGenerator() {
+    protected PolicyModelGenerator() {
         // nothing to initialize
     }
     
@@ -89,8 +94,7 @@ public final class PolicyModelGenerator {
         if (policy == null) {
             LOGGER.fine(LocalizationMessages.WSP_0047_POLICY_IS_NULL_RETURNING());
         } else {
-            model = PolicySourceModel.createPolicySourceModel(policy.getNamespaceVersion(), policy.getId(), policy.getName());
-            
+            model = createSourceModel(policy);
             final ModelNode rootNode = model.getRootNode();
             final ModelNode exactlyOneNode = rootNode.createChildExactlyOneNode();
             for (AssertionSet set : policy) {
@@ -110,6 +114,17 @@ public final class PolicyModelGenerator {
         
         LOGGER.exiting(model);
         return model;
+    }
+
+    /**
+     * Allow derived classes to create their own instance of PolicySourceModel.
+     *
+     * @param policy The policy to be converted.
+     * @return A new instance of PolicySourceModel.
+     */
+    protected PolicySourceModel createSourceModel(final Policy policy) {
+        return PolicySourceModel.createPolicySourceModel(policy.getNamespaceVersion(),
+                policy.getId(), policy.getName());
     }
     
     /**

@@ -64,15 +64,15 @@ import javax.xml.stream.events.XMLEvent;
  * @author Marek Potociar
  * @author Fabian Ritzmann
  */
-final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
+public class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
 
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(XmlPolicyModelUnmarshaller.class);
 
     /**
      * Creates a new instance of XmlPolicyModelUnmarshaller
      */
-    XmlPolicyModelUnmarshaller() {
-    // nothing to initialize
+    protected XmlPolicyModelUnmarshaller() {
+        // nothing to initialize
     }
 
     /**
@@ -118,6 +118,18 @@ final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
         return model;
     }
 
+    /**
+     * Allow derived classes to pass in a custom instance of PolicySourceModel.
+     *
+     * @param nsVersion
+     * @param id
+     * @param name
+     * @return
+     */
+    protected PolicySourceModel createSourceModel(NamespaceVersion nsVersion, String id, String name) {
+        return PolicySourceModel.createPolicySourceModel(nsVersion, id, name);
+    }
+
     private PolicySourceModel initializeNewModel(final StartElement element) throws PolicyException, XMLStreamException {
         PolicySourceModel model;
 
@@ -133,7 +145,7 @@ final class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
             throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0058_MULTIPLE_POLICY_IDS_NOT_ALLOWED()));
         }
 
-        model = PolicySourceModel.createPolicySourceModel(nsVersion,
+        model = createSourceModel(nsVersion,
                 (policyId == null) ? null : policyId.getValue(),
                 (policyName == null) ? null : policyName.getValue());
 
