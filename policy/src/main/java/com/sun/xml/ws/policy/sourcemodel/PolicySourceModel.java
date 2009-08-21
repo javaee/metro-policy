@@ -116,6 +116,8 @@ public final class PolicySourceModel implements Cloneable {
      * id or name identifier. The namespace-to-prefix map is initialized with mapping
      * of policy namespace to the default value set by
      * {@link PolicyConstants#POLICY_NAMESPACE_PREFIX POLICY_NAMESPACE_PREFIX constant}
+     *
+     * @param nsVersion The WS-Policy version.
      */
     private PolicySourceModel(NamespaceVersion nsVersion) {
         this(nsVersion, null, null);
@@ -125,6 +127,7 @@ public final class PolicySourceModel implements Cloneable {
      * Private constructor that creats new policy source model instance with given
      * id or name identifier.
      *
+     * @param nsVersion The WS-Policy version.
      * @param policyId relative policy reference within an XML document. May be {@code null}.
      * @param policyName absloute IRI of policy expression. May be {@code null}.
      */
@@ -178,6 +181,7 @@ public final class PolicySourceModel implements Cloneable {
      * @return immutable map that holds information about namespaces used in the
      *         model and their mapping to prefixes that should be used when marshalling
      *         this model.
+     * @throws PolicyException Thrown if one of the prefix mappers threw an exception.
      */
     Map<String, String> getNamespaceToPrefixMapping() throws PolicyException {
         final Map<String, String> nsToPrefixMap = new HashMap<String, String>();
@@ -347,8 +351,8 @@ public final class PolicySourceModel implements Cloneable {
      * Iterates through policy vocabulary and extracts set of namespaces used in
      * the policy expression.
      *
-     * @param policy policy instance to check fro used namespaces
      * @return collection of used namespaces within given policy instance
+     * @throws PolicyException Thrown if internal processing failed.
      */
     private Collection<String> getUsedNamespaces() throws PolicyException {
         final Set<String> namespaces = new HashSet<String>();
