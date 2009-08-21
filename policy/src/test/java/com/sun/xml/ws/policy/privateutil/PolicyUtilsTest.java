@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -68,21 +68,25 @@ public class PolicyUtilsTest extends TestCase {
         String expResult, result;
         
         index = 0;
-        expResult = "dumpThreads";
         result = PolicyUtils.Commons.getStackMethodName(index);
-        assertEquals(expResult, result);
+        // On Mac OS X, getStackMethodName returns getStackTrace. On other system,
+        // this method first returns dumpThreads.
+        if (result.equals("dumpThreads")) {
+            index++;
+            expResult = "getStackTrace";
+            result = PolicyUtils.Commons.getStackMethodName(index);
+            assertEquals(expResult, result);
+        }
+        else if (!result.equals("getStackTrace")) {
+            fail("Expected \"dumpThreads\" or \"getStackTrace\", but got instead \"" + result + "\"");
+        }
         
-        index = 1;
-        expResult = "getStackTrace";
-        result = PolicyUtils.Commons.getStackMethodName(index);
-        assertEquals(expResult, result);
-        
-        index = 2;
+        index++;
         expResult = "getStackMethodName";
         result = PolicyUtils.Commons.getStackMethodName(index);
         assertEquals(expResult, result);
         
-        index = 3;
+        index++;
         expResult = "testCommonsGetStackMethodName";
         result = PolicyUtils.Commons.getStackMethodName(index);
         assertEquals(expResult, result);
@@ -242,7 +246,7 @@ public class PolicyUtilsTest extends TestCase {
     /**
      * Test of invoke method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Reflection.
      */
-    public void testReflectionInvoke() throws Exception {
+    public void testReflectionInvoke() {
         final Object target = new Object() { public String hum() { return "hum"; } };
         final String result = PolicyUtils.Reflection.invoke(target, "hum", String.class, null, null);
         assertEquals("hum", result);
@@ -251,7 +255,7 @@ public class PolicyUtilsTest extends TestCase {
     /**
      * Test of invoke method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Reflection.
      */
-    public void testReflectionInvokeFail() throws Exception {
+    public void testReflectionInvokeFail() {
         final Object target = new Object() { public String hum() { return "hum"; } };
         try {
             final String result = PolicyUtils.Reflection.invoke(target, "humv", String.class, null, null);
@@ -263,6 +267,7 @@ public class PolicyUtilsTest extends TestCase {
 
     /**
      * Test of generateFullName method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
+     * @throws PolicyException
      */
     public void testConfigFileGenerateFullName() throws PolicyException {
         String configFileIdentifier = "test";
@@ -283,22 +288,6 @@ public class PolicyUtilsTest extends TestCase {
         } catch (PolicyException e) {
             // expected an exception
         }
-    }
-    
-    /**
-     * Test of loadFromContext method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
-     */
-    public void testConfigFileLoadFromContext() throws Exception {
-        // TODO review the generated test code and remove the default call to fail.
-        // fail("The test case is a prototype.");
-    }
-    
-    /**
-     * Test of loadFromClasspath method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.ConfigFile.
-     */
-    public void testConfigFileLoadFromClasspath() {
-        // TODO review the generated test code and remove the default call to fail.
-        // fail("The test case is a prototype.");
     }
     
     /**
