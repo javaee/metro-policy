@@ -42,6 +42,7 @@ import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
 import com.sun.xml.ws.policy.privateutil.PolicyUtils;
 import com.sun.xml.ws.policy.spi.PrefixMapper;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -58,29 +59,34 @@ import javax.xml.namespace.QName;
  * to create new {@link com.sun.xml.ws.policy.sourcemodel.ModelNode} instances associated with the actual model instance.
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
-public final class PolicySourceModel implements Cloneable {
+public class PolicySourceModel implements Cloneable {
 
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicySourceModel.class);
-    // TODO: move responsbility for default namespacing to the domain SPI implementation
-    private static final Map<String, String> defaultNamespaceToPrefixMap = new HashMap<String, String>();
 
+    private static final Map<String, String> DEFAULT_NAMESPACE_TO_PREFIX = new HashMap<String, String>();
     static {
-        
         PrefixMapper[] prefixMappers = PolicyUtils.ServiceProvider.load(PrefixMapper.class);
         if (prefixMappers != null) {
             for (PrefixMapper mapper: prefixMappers) {
-                defaultNamespaceToPrefixMap.putAll(mapper.getPrefixMap());
+                DEFAULT_NAMESPACE_TO_PREFIX.putAll(mapper.getPrefixMap());
             }
         }
         
         for (NamespaceVersion version : NamespaceVersion.values()) {
-            defaultNamespaceToPrefixMap.put(version.toString(), version.getDefaultNamespacePrefix());
+            DEFAULT_NAMESPACE_TO_PREFIX.put(version.toString(), version.getDefaultNamespacePrefix());
         }
-        defaultNamespaceToPrefixMap.put(PolicyConstants.WSU_NAMESPACE_URI, PolicyConstants.WSU_NAMESPACE_PREFIX);
-        defaultNamespaceToPrefixMap.put(PolicyConstants.SUN_POLICY_NAMESPACE_URI, PolicyConstants.SUN_POLICY_NAMESPACE_PREFIX);
+        DEFAULT_NAMESPACE_TO_PREFIX.put(PolicyConstants.WSU_NAMESPACE_URI,
+                PolicyConstants.WSU_NAMESPACE_PREFIX);
+        DEFAULT_NAMESPACE_TO_PREFIX.put(PolicyConstants.SUN_POLICY_NAMESPACE_URI,
+                PolicyConstants.SUN_POLICY_NAMESPACE_PREFIX);
     }
-    
+
+    // Map namespaces to prefixes
+    private final Map<String, String> namespaceToPrefix =
+            new HashMap<String, String>(DEFAULT_NAMESPACE_TO_PREFIX);
+
     private ModelNode rootNode;
     private final String policyId;
     private final String policyName;
@@ -92,8 +98,11 @@ public final class PolicySourceModel implements Cloneable {
     /**
      * Factory method that creates new policy source model instance.
      *
+     * This method is only intended to be used by code that has no dependencies on
+     * JAX-WS. Otherwise use com.sun.xml.ws.policy.api.SourceModel.
+     *
      * @param nsVersion The policy version
-     * @return newly created policy source model instance
+     * @return Newly created policy source model instance.
      */
     public static PolicySourceModel createPolicySourceModel(final NamespaceVersion nsVersion) {
         return new PolicySourceModel(nsVersion);
@@ -102,20 +111,23 @@ public final class PolicySourceModel implements Cloneable {
     /**
      * Factory method that creates new policy source model instance and initializes it according to parameters provided.
      *
+     * This method is only intended to be used by code that has no dependencies on
+     * JAX-WS. Otherwise use com.sun.xml.ws.policy.api.SourceModel.
+     *
      * @param nsVersion The policy version
      * @param policyId local policy identifier - relative URI. May be {@code null}.
      * @param policyName global policy identifier - absolute policy expression URI. May be {@code null}.
-     * @return newly created policy source model instance with its name and id properly set
+     * @return Newly created policy source model instance with its name and id properly set.
      */
     public static PolicySourceModel createPolicySourceModel(final NamespaceVersion nsVersion, final String policyId, final String policyName) {
         return new PolicySourceModel(nsVersion, policyId, policyName);
     }
 
     /**
-     * Private constructor that creats new policy source model instance without any
+     * Constructor that creates a new policy source model instance without any
      * id or name identifier. The namespace-to-prefix map is initialized with mapping
      * of policy namespace to the default value set by
-     * {@link PolicyConstants#POLICY_NAMESPACE_PREFIX POLICY_NAMESPACE_PREFIX constant}
+     * {@link PolicyConstants#POLICY_NAMESPACE_PREFIX POLICY_NAMESPACE_PREFIX constant}.
      *
      * @param nsVersion The WS-Policy version.
      */
@@ -124,18 +136,39 @@ public final class PolicySourceModel implements Cloneable {
     }
 
     /**
-     * Private constructor that creats new policy source model instance with given
+     * Constructor that creates a new policy source model instance with given
      * id or name identifier.
      *
      * @param nsVersion The WS-Policy version.
-     * @param policyId relative policy reference within an XML document. May be {@code null}.
-     * @param policyName absloute IRI of policy expression. May be {@code null}.
+     * @param policyId Relative policy reference within an XML document. May be {@code null}.
+     * @param policyName Absolute IRI of policy expression. May be {@code null}.
      */
     private PolicySourceModel(NamespaceVersion nsVersion, String policyId, String policyName) {
+        this(nsVersion, policyId, policyName, null);
+    }
+
+    /**
+     * Constructor that creates a new policy source model instance with given
+     * id or name identifier and a set of PrefixMappers.
+     *
+     * This constructor is intended to be used by the JAX-WS com.sun.xml.ws.policy.api.SourceModel.
+     *
+     * @param nsVersion The WS-Policy version.
+     * @param policyId Relative policy reference within an XML document. May be {@code null}.
+     * @param policyName Absolute IRI of policy expression. May be {@code null}.
+     * @param prefixMappers A collection of PrefixMappers to be used with this instance. May be {@code null}.
+     */
+    protected PolicySourceModel(NamespaceVersion nsVersion, String policyId,
+            String policyName, Collection<PrefixMapper> prefixMappers) {
         this.rootNode = ModelNode.createRootPolicyNode(this);
         this.nsVersion = nsVersion;
         this.policyId = policyId;
         this.policyName = policyName;
+        if (prefixMappers != null) {
+            for (PrefixMapper prefixMapper : prefixMappers) {
+                this.namespaceToPrefix.putAll(prefixMapper.getPrefixMap());
+            }
+        }
     }
 
     /**
@@ -399,8 +432,7 @@ public final class PolicySourceModel implements Cloneable {
      * @return default prefix for given namespace. May return {@code null} if the
      *         default prefix for given namespace is not defined.
      */
-    private static String getDefaultPrefix(final String namespace) {
-        return defaultNamespaceToPrefixMap.get(namespace);
+    private String getDefaultPrefix(final String namespace) {
+        return namespaceToPrefix.get(namespace);
     }
 }
-
