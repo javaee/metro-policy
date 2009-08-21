@@ -92,7 +92,12 @@ public final class PolicyUtils {
          * @return caller method name from the call stack of the current {@link Thread}.
          */
         public static String getCallerMethodName() {
-            return getStackMethodName(5);
+            String result = getStackMethodName(5);
+            if (result.equals("invoke0")) {
+                // We are likely running on Mac OS X, which returns a shorter stack trace
+                result = getStackMethodName(4);
+            }
+            return result;
         }
     }
     

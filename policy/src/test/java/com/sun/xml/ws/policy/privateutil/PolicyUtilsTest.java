@@ -69,8 +69,8 @@ public class PolicyUtilsTest extends TestCase {
         
         index = 0;
         result = PolicyUtils.Commons.getStackMethodName(index);
-        // On Mac OS X, getStackMethodName returns getStackTrace. On other system,
-        // this method first returns dumpThreads.
+        // On Mac OS X, getStackMethodName returns getStackTrace. On other systems,
+        // this method first returns dumpThreads and then getStackTrace.
         if (result.equals("dumpThreads")) {
             index++;
             expResult = "getStackTrace";
