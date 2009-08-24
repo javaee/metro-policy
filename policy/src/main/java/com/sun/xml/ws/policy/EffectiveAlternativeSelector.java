@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,7 +48,11 @@ import java.util.LinkedList;
  * specific @see com.sun.xml.ws.policy.spi.PolicySelector
  * to find out whether particular policy assertion is actually supported.
  *
+ * If you are using JAX-WS, use the com.sun.xml.ws.api.policy.AlternativeSelector
+ * instead of this class.
+ *
  * @author Jakub Podlesak (jakub.podlesak at sun.com)
+ * @author Fabian Ritzmann
  */
 public class EffectiveAlternativeSelector {
     private enum AlternativeFitness {
@@ -146,16 +150,32 @@ public class EffectiveAlternativeSelector {
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(EffectiveAlternativeSelector.class);
     
     /**
-     * Does the selection for policy map bound to given modifier
+     * Does the selection for policy map bound to given modifier.
+     *
+     * If you are using JAX-WS, use the com.sun.xml.ws.api.policy.AlternativeSelector
+     * instead of this class.
      *
      * @param modifier Holds the policy map
      * @throws PolicyException Most likely an internal error if a policy could not be read or set on the policy map
      * @see EffectivePolicyModifier which the map is bound to
      */
-    public static final void doSelection(final EffectivePolicyModifier modifier) throws PolicyException {
-        final PolicyMap map = modifier.getMap();
+    public static void doSelection(final EffectivePolicyModifier modifier) throws PolicyException {
         final AssertionValidationProcessor validationProcessor = AssertionValidationProcessor.getInstance();
-        
+        selectAlternatives(modifier, validationProcessor);
+    }
+
+    /**
+     * This method is intended to be called by extension classes that need to
+     * override the behavior of {@link #doSelection}.
+     *
+     * @param modifier
+     * @param validationProcessor
+     * @throws PolicyException
+     */
+    protected static void selectAlternatives(final EffectivePolicyModifier modifier,
+            final AssertionValidationProcessor validationProcessor)
+            throws PolicyException {
+        final PolicyMap map = modifier.getMap();
         for (PolicyMapKey mapKey : map.getAllServiceScopeKeys()) {
             final Policy oldPolicy = map.getServiceEffectivePolicy(mapKey);
             modifier.setNewEffectivePolicyForServiceScope(mapKey, selectBestAlternative(oldPolicy, validationProcessor));
