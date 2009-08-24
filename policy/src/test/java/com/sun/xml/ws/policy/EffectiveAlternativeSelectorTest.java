@@ -33,6 +33,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 package com.sun.xml.ws.policy;
 
 import com.sun.xml.ws.policy.sourcemodel.AssertionData;
@@ -40,8 +41,10 @@ import com.sun.xml.ws.policy.sourcemodel.ModelNode;
 import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
 import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+
 import java.util.Arrays;
 import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 /**
@@ -50,13 +53,29 @@ import junit.framework.TestCase;
  */
 public class EffectiveAlternativeSelectorTest extends TestCase {
     
+    private final QName assertion1Name = new QName("test1", "test1");
+    private final QName assertion2Name = new QName("test2", "test2");
+
+    private Policy multipleAlternativesPolicy;
+
+    
     public EffectiveAlternativeSelectorTest(String testName) {
         super(testName);
     }
 
     @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    protected void setUp() throws PolicyException {
+        final PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
+        final ModelNode root = model.getRootNode();
+        final ModelNode alternatives = root.createChildExactlyOneNode();
+        final ModelNode alternative1 = alternatives.createChildAllNode();
+        final ModelNode alternative2 = alternatives.createChildAllNode();
+        final AssertionData assertion1 = AssertionData.createAssertionData(assertion1Name);
+        alternative1.createChildAssertionNode(assertion1);
+        final AssertionData assertion2 = AssertionData.createAssertionData(assertion2Name);
+        alternative2.createChildAssertionNode(assertion2);
+        final PolicyModelTranslator translator = PolicyModelTranslator.getTranslator();
+        this.multipleAlternativesPolicy = translator.translate(model);
     }
 
     @Override
@@ -66,6 +85,7 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
 
     /**
      * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
      */
     public void testDoSelectionNull() throws PolicyException {
         final EffectivePolicyModifier modifier = null;
@@ -79,6 +99,7 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
 
     /**
      * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
      */
     public void testDoSelectionUnconnected() throws PolicyException {
         final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
@@ -92,6 +113,7 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
 
     /**
      * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
      */
     public void testDoSelectionEmpty() throws PolicyException {
         final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
@@ -103,28 +125,16 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
 
     /**
      * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
      */
-    public void testDoSelectionAlternatives() throws PolicyException {
-        final PolicySourceModel model = PolicySourceModel.createPolicySourceModel(NamespaceVersion.v1_5, "id", null);
-        final ModelNode root = model.getRootNode();
-        final ModelNode alternatives = root.createChildExactlyOneNode();
-        final ModelNode alternative1 = alternatives.createChildAllNode();
-        final ModelNode alternative2 = alternatives.createChildAllNode();
-        final QName name1 = new QName("test1", "test1");
-        final AssertionData assertion1 = AssertionData.createAssertionData(name1);
-        alternative1.createChildAssertionNode(assertion1);
-        final QName name2 = new QName("test2", "test2");
-        final AssertionData assertion2 = AssertionData.createAssertionData(name2);
-        alternative2.createChildAssertionNode(assertion2);
-        final PolicyModelTranslator translator = PolicyModelTranslator.getTranslator();
-        final Policy policy = translator.translate(model);
+    public void testDoSelectionAlternativesService() throws PolicyException {
 
         final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
         final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
 
-        final PolicySubject subject = new PolicySubject("dummy", policy);
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
 
-        final PolicyMapKey key = PolicyMap.createWsdlServiceScopeKey(new QName("1"));
+        final PolicyMapKey key = PolicyMap.createWsdlServiceScopeKey(new QName("service"));
         extender.putServiceSubject(key, subject);
 
         final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
@@ -132,11 +142,157 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
         EffectiveAlternativeSelector.doSelection(modifier);
 
         final Policy result = map.getServiceEffectivePolicy(key);
-        if (result.contains(name1)) {
-            assertFalse(result.contains(name2));
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
         }
-        else if (result.contains(name2)) {
-            assertFalse(result.contains(name1));
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
+        }
+        else {
+            fail("Expected exactly one assertion in the resulting policy.");
+        }
+    }
+
+    /**
+     * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
+     */
+    public void testDoSelectionAlternativesEndpoint() throws PolicyException {
+
+        final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
+
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
+
+        final PolicyMapKey key = PolicyMap.createWsdlEndpointScopeKey(new QName("service"), new QName("port"));
+        extender.putEndpointSubject(key, subject);
+
+        final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        modifier.connect(map);
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        final Policy result = map.getEndpointEffectivePolicy(key);
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
+        }
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
+        }
+        else {
+            fail("Expected exactly one assertion in the resulting policy.");
+        }
+    }
+
+    /**
+     * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
+     */
+    public void testDoSelectionAlternativesOperation() throws PolicyException {
+
+        final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
+
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
+
+        final PolicyMapKey key = PolicyMap.createWsdlOperationScopeKey(
+                new QName("service"), new QName("port"), new QName("operation"));
+        extender.putOperationSubject(key, subject);
+
+        final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        modifier.connect(map);
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        final Policy result = map.getOperationEffectivePolicy(key);
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
+        }
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
+        }
+        else {
+            fail("Expected exactly one assertion in the resulting policy.");
+        }
+    }
+
+    /**
+     * Test of doSelection method, of class EffectiveAlternativeSelector.
+     * @throws PolicyException
+     */
+    public void testDoSelectionAlternativesInput() throws PolicyException {
+
+        final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
+
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
+
+        final PolicyMapKey key = PolicyMap.createWsdlMessageScopeKey(
+                new QName("service"), new QName("port"), new QName("operation"));
+        extender.putInputMessageSubject(key, subject);
+
+        final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        modifier.connect(map);
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        final Policy result = map.getInputMessageEffectivePolicy(key);
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
+        }
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
+        }
+        else {
+            fail("Expected exactly one assertion in the resulting policy.");
+        }
+    }
+
+    public void testDoSelectionAlternativesOutput() throws PolicyException {
+
+        final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
+
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
+
+        final PolicyMapKey key = PolicyMap.createWsdlMessageScopeKey(
+                new QName("service"), new QName("port"), new QName("operation"));
+        extender.putOutputMessageSubject(key, subject);
+
+        final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        modifier.connect(map);
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        final Policy result = map.getOutputMessageEffectivePolicy(key);
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
+        }
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
+        }
+        else {
+            fail("Expected exactly one assertion in the resulting policy.");
+        }
+    }
+
+    public void testDoSelectionAlternativesFault() throws PolicyException {
+
+        final PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        final PolicyMap map = PolicyMap.createPolicyMap(Arrays.asList(new PolicyMapMutator[] {extender}));
+
+        final PolicySubject subject = new PolicySubject("dummy", this.multipleAlternativesPolicy);
+
+        final PolicyMapKey key = PolicyMap.createWsdlFaultMessageScopeKey(
+                new QName("service"), new QName("port"), new QName("operation"), new QName("fault"));
+        extender.putFaultMessageSubject(key, subject);
+
+        final EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        modifier.connect(map);
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        final Policy result = map.getFaultMessageEffectivePolicy(key);
+        if (result.contains(this.assertion1Name)) {
+            assertFalse(result.contains(this.assertion2Name));
+        }
+        else if (result.contains(this.assertion2Name)) {
+            assertFalse(result.contains(this.assertion1Name));
         }
         else {
             fail("Expected exactly one assertion in the resulting policy.");
