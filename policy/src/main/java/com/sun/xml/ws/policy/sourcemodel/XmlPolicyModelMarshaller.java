@@ -45,16 +45,20 @@ import com.sun.xml.ws.policy.PolicyConstants;
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
 
+
 public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
+
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(XmlPolicyModelMarshaller.class);
     
     private final boolean marshallInvisible;
+
     
     XmlPolicyModelMarshaller(boolean marshallInvisible) {
         this.marshallInvisible = marshallInvisible;
@@ -83,6 +87,7 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
      *
      * @param model A policy source model.
      * @param writer A Stax serializer.
+     * @throws PolicyException If marshalling failed.
      */
     private void marshal(final PolicySourceModel model, final StaxSerializer writer) throws PolicyException {
         final TypedXmlWriter policy = TXW.create(model.getNamespaceVersion().asQName(XmlToken.Policy), TypedXmlWriter.class, writer);
@@ -98,6 +103,7 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
      *
      * @param model A policy source model.
      * @param writer A typed XML writer.
+     * @throws PolicyException If marshalling failed.
      */
     private void marshal(final PolicySourceModel model, final TypedXmlWriter writer) throws PolicyException {
         final TypedXmlWriter policy = writer._element(model.getNamespaceVersion().asQName(XmlToken.Policy), TypedXmlWriter.class);
@@ -112,6 +118,7 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
      *
      * @param model A policy source model.
      * @param writer An XML stream writer.
+     * @throws PolicyException If marshalling failed.
      */
     private void marshal(final PolicySourceModel model, final XMLStreamWriter writer) throws PolicyException {
         final StaxSerializer serializer = new StaxSerializer(writer);
@@ -145,6 +152,7 @@ public final class XmlPolicyModelMarshaller extends PolicyModelMarshaller {
     /**
      * Marshal given ModelNode and child elements on given TypedXmlWriter.
      *
+     * @param nsVersion The WS-Policy version.
      * @param rootNode The ModelNode that is marshalled.
      * @param writer The TypedXmlWriter onto which the content of the rootNode is marshalled.
      */
