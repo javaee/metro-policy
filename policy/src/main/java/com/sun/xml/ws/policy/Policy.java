@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -290,7 +290,7 @@ public class Policy implements Iterable<AssertionSet> {
      *
      * @param name global URI of the policy. May be {@code null}.
      * @param policyId local URI of the policy. May be {@code null}.
-     * @param sets represents the collection of policy alternatives of the policy object created. The list is directly
+     * @param assertionSets represents the collection of policy alternatives of the policy object created. The list is directly
      * assigned to the policy object internal attribute. Subsequent manipulations on the collection must be handled with
      * care.
      * @param vocabulary represents the vocabulary of the policy object. Subsequent manipulations on the collection
@@ -360,7 +360,7 @@ public class Policy implements Iterable<AssertionSet> {
      * @param nsVersion Policy namespace version to be used when marshalling the policy expression
      * @param name global URI of the policy. May be {@code null}.
      * @param policyId local URI of the policy. May be {@code null}.
-     * @param sets represents the collection of policy alternatives of the policy object created. The list is directly
+     * @param assertionSets represents the collection of policy alternatives of the policy object created. The list is directly
      * assigned to the policy object internal attribute. Subsequent manipulations on the collection must be handled with
      * care.
      * @param vocabulary represents the vocabulary of the policy object. Subsequent manipulations on the collection
