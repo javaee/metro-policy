@@ -55,9 +55,9 @@ import java.util.Iterator;
  * @author Marek Potociar
  * @author Fabian Ritzmann
  */
-public class PolicyModelGenerator {
-    private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyModelTranslator.class);
-    private static final PolicyModelGenerator generator = new PolicyModelGenerator();
+public abstract class PolicyModelGenerator {
+
+    private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyModelGenerator.class);
     
     /**
      * This protected constructor avoids direct instantiation from outside of the class
@@ -67,14 +67,36 @@ public class PolicyModelGenerator {
     }
     
     /**
-     * Factory method that returns {@link PolicyModelGenerator} instance.
+     * Factory method that returns a {@link PolicyModelGenerator} instance.
      *
      * @return {@link PolicyModelGenerator} instance
      */
     public static PolicyModelGenerator getGenerator() {
-        return generator;
+        return getNormalizedGenerator(new PolicySourceModelCreator());
     }
-    
+
+    /**
+     * Allows derived classes to create instances of the package private
+     * CompactModelGenerator.
+     *
+     * @param creator An implementation of the PolicySourceModelCreator.
+     * @return An instance of CompactModelGenerator.
+     */
+    protected static PolicyModelGenerator getCompactGenerator(PolicySourceModelCreator creator) {
+        return new CompactModelGenerator(creator);
+    }
+
+    /**
+     * Allows derived classes to create instances of the package private
+     * NormalizedModelGenerator.
+     *
+     * @param creator An implementation of the PolicySourceModelCreator.
+     * @return An instance of NormalizedModelGenerator.
+     */
+    protected static PolicyModelGenerator getNormalizedGenerator(PolicySourceModelCreator creator) {
+        return new NormalizedModelGenerator(creator);
+    }
+
     /**
      * This method translates a {@link Policy} into a
      * {@link com.sun.xml.ws.policy.sourcemodel policy infoset}. The resulting
@@ -86,79 +108,44 @@ public class PolicyModelGenerator {
      * null.
      * @throws PolicyException in case Policy translation fails.
      */
-    public PolicySourceModel translate(final Policy policy) throws PolicyException {
-        LOGGER.entering(policy);
-        
-        PolicySourceModel model = null;
-        
-        if (policy == null) {
-            LOGGER.fine(LocalizationMessages.WSP_0047_POLICY_IS_NULL_RETURNING());
-        } else {
-            model = createSourceModel(policy);
-            final ModelNode rootNode = model.getRootNode();
-            final ModelNode exactlyOneNode = rootNode.createChildExactlyOneNode();
-            for (AssertionSet set : policy) {
-                final ModelNode alternativeNode = exactlyOneNode.createChildAllNode();
-                for (PolicyAssertion assertion : set) {
-                    final AssertionData data = AssertionData.createAssertionData(assertion.getName(), assertion.getValue(), assertion.getAttributes(), assertion.isOptional(), assertion.isIgnorable());
-                    final ModelNode assertionNode = alternativeNode.createChildAssertionNode(data);
-                    if (assertion.hasNestedPolicy()) {
-                        translate(assertionNode, assertion.getNestedPolicy());
-                    }
-                    if (assertion.hasParameters()) {
-                        translate(assertion.getParametersIterator(), assertionNode);
-                    }
-                }
-            }
-        }
-        
-        LOGGER.exiting(model);
-        return model;
-    }
+    public abstract PolicySourceModel translate(final Policy policy) throws PolicyException;
 
     /**
-     * Allow derived classes to create their own instance of PolicySourceModel.
-     *
-     * @param policy The policy to be converted.
-     * @return A new instance of PolicySourceModel.
-     */
-    protected PolicySourceModel createSourceModel(final Policy policy) {
-        return PolicySourceModel.createPolicySourceModel(policy.getNamespaceVersion(),
-                policy.getId(), policy.getName());
-    }
-    
-    /**
-     * Iterates through a nested policy and return the corresponding policy info model.
+     * Iterates through a nested policy and returns the corresponding policy info model.
      *
      * @param parentAssertion The parent node.
      * @param policy The nested policy.
      * @return The nested policy translated to the policy info model.
      */
-    private ModelNode translate(final ModelNode parentAssertion, final NestedPolicy policy) {
-        final ModelNode nestedPolicyRoot = parentAssertion.createChildPolicyNode();
-        final ModelNode exactlyOneNode = nestedPolicyRoot.createChildExactlyOneNode();
-        final AssertionSet set = policy.getAssertionSet();
-        final ModelNode alternativeNode = exactlyOneNode.createChildAllNode();
-        for (PolicyAssertion assertion : set) {
+    protected abstract ModelNode translate(final ModelNode parentAssertion, final NestedPolicy policy);
+
+    /**
+     * Add the contents of the assertion set as child node to the given model node.
+     *
+     * @param node The content of this assertion set are added as child nodes to this node.
+     *     May not be null.
+     * @param assertions The assertions that are to be added to the node. May not be null.
+     */
+    protected void translate(final ModelNode node, final AssertionSet assertions) {
+        for (PolicyAssertion assertion : assertions) {
             final AssertionData data = AssertionData.createAssertionData(assertion.getName(), assertion.getValue(), assertion.getAttributes(), assertion.isOptional(), assertion.isIgnorable());
-            final ModelNode assertionNode = alternativeNode.createChildAssertionNode(data);
+            final ModelNode assertionNode = node.createChildAssertionNode(data);
             if (assertion.hasNestedPolicy()) {
                 translate(assertionNode, assertion.getNestedPolicy());
             }
             if (assertion.hasParameters()) {
-                translate(assertion.getParametersIterator(), assertionNode);
+                translate(assertionNode, assertion.getParametersIterator());
             }
         }
-        return nestedPolicyRoot;
     }
-    
+
     /**
      * Iterates through all contained assertions and adds them to the info model.
      *
      * @param assertionParametersIterator The contained assertions.
      * @param assertionNode The node to which the assertions are added as child nodes
      */
-    private void translate(final Iterator<PolicyAssertion> assertionParametersIterator, final ModelNode assertionNode) {
+    protected void translate(final ModelNode assertionNode, final Iterator<PolicyAssertion> assertionParametersIterator) {
         while (assertionParametersIterator.hasNext()) {
             final PolicyAssertion assertionParameter = assertionParametersIterator.next();
             final AssertionData data = AssertionData.createAssertionParameterData(assertionParameter.getName(), assertionParameter.getValue(), assertionParameter.getAttributes());
@@ -167,8 +154,29 @@ public class PolicyModelGenerator {
                 throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0005_UNEXPECTED_POLICY_ELEMENT_FOUND_IN_ASSERTION_PARAM(assertionParameter)));
             }
             if (assertionParameter.hasNestedAssertions()) {
-                translate(assertionParameter.getNestedAssertionsIterator(), assertionParameterNode);
+                translate(assertionParameterNode, assertionParameter.getNestedAssertionsIterator());
             }
         }
     }
+
+
+    /**
+     * Allows derived classes to pass their own implementation of PolicySourceModelCreator
+     * into the PolicyModelGenerator instance.
+     */
+    protected static class PolicySourceModelCreator {
+
+        /**
+         * Create an instance of the PolicySourceModel.
+         *
+         * @param policy The policy that underlies the created PolicySourceModel.
+         * @return An instance of the PolicySourceModel.
+         */
+        protected PolicySourceModel create(final Policy policy) {
+            return PolicySourceModel.createPolicySourceModel(policy.getNamespaceVersion(),
+                    policy.getId(), policy.getName());
+        }
+
+    }
+
 }
