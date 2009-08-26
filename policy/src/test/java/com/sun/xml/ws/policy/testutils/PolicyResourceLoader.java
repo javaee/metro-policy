@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -41,30 +41,21 @@ import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
 import com.sun.xml.ws.policy.sourcemodel.PolicyModelUnmarshaller;
 import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
-import javax.xml.stream.XMLInputFactory;
 
 /**
  * This class provides utility methods to load resources and unmarshall policy source model.
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
 public final class PolicyResourceLoader {
-    public static final String POLICY_UNIT_TEST_RESOURCE_ROOT = "policy/";
-    private static final XMLInputFactory inputFactory = XMLInputFactory.newInstance();
 
-    public static final String[] SINGLE_ALTERNATIVE_POLICY = new String[] {
-        "single_alternative_policy/policy1.xml",
-        "single_alternative_policy/policy2.xml",
-        "single_alternative_policy/policy3.xml",
-        "single_alternative_policy/policy4.xml",
-        "single_alternative_policy/policy5.xml"
-    };
-    
     private PolicyResourceLoader() {
     }
     
@@ -82,10 +73,9 @@ public final class PolicyResourceLoader {
     }
     
     public static InputStream getResourceStream(String resourceName) throws PolicyException {
-        String fullName = POLICY_UNIT_TEST_RESOURCE_ROOT + resourceName;
-        InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(fullName);
+        InputStream input = Thread.currentThread().getContextClassLoader().getResourceAsStream(resourceName);
         if (input == null) {
-            throw new PolicyException("Failed to find resource \"" + fullName + "\"");
+            throw new PolicyException("Failed to find resource \"" + resourceName + "\"");
         }
         return input;
     }
@@ -95,7 +85,7 @@ public final class PolicyResourceLoader {
     }
     
     public static URL getResourceUrl(String resourceName) {
-        return Thread.currentThread().getContextClassLoader().getResource(POLICY_UNIT_TEST_RESOURCE_ROOT + resourceName);
+        return Thread.currentThread().getContextClassLoader().getResource(resourceName);
     }
     
     public static Policy translateModel(PolicySourceModel model) throws PolicyException {
