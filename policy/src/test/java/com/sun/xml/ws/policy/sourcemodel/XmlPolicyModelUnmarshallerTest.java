@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2008 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,8 +38,12 @@ package com.sun.xml.ws.policy.sourcemodel;
 
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+import com.sun.xml.ws.policy.testutils.PolicyResourceLoader;
+
+import java.io.Reader;
 import java.io.StringReader;
 import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 /**
@@ -74,6 +78,7 @@ public class XmlPolicyModelUnmarshallerTest extends TestCase {
 
     /**
      * Test of unmarshalModel method, of class XmlPolicyModelUnmarshaller.
+     * @throws PolicyException
      */
     public void testUnmarshalModel() throws PolicyException {
         StringReader storage = new StringReader(policy);
@@ -102,6 +107,63 @@ public class XmlPolicyModelUnmarshallerTest extends TestCase {
         nestedExactlyOne.createChildAssertionNode(nestedAssertion2);
         PolicySourceModel result = instance.unmarshalModel(storage);
         assertEquals(expResult, result);
+    }
+
+    public void testUnmarshallSingleSimplePolicyModel() throws Exception {
+        unmarshallModel("single_alternative_policy/policy5.xml");
+    }
+
+    public void testUnmarshallSingleComplexPolicyModel() throws Exception {
+        unmarshallModel("complex_policy/nested_assertions_with_alternatives.xml");
+    }
+
+    public void testUnmarshallComplexPolicyModelWithAssertionParameters() throws Exception {
+        unmarshallModel("complex_policy/assertion_parameters1.xml");
+    }
+
+    public void testUnmarshallComplexPolicyModelWithAssertionParametersWithValues() throws Exception {
+        unmarshallModel("bug_reproduction/assertion_parameter_value_unmarshalling.xml");
+    }
+
+    public void testUnmarshallPolicyModelWithPolicyReference() throws Exception {
+        unmarshallModel("bug_reproduction/policy_reference1.xml");
+    }
+
+    public void testUnmarshallPolicyModelWithXmlId() throws Exception {
+        PolicySourceModel model = unmarshallModel("complex_policy/policy_with_xmlid.xml");
+        assertEquals("Unmarshalled xml:id is not the same as expected", "testXmlId", model.getPolicyId());
+    }
+
+    public void testUnmarshallPolicyModelWithWsuId() throws Exception {
+        PolicySourceModel model = unmarshallModel("complex_policy/policy_with_wsuid.xml");
+        assertEquals("Unmarshalled wsu:Id is not the same as expected", "testWsuId", model.getPolicyId());
+    }
+
+    public void testUnmarshallPolicyModelWithXmlIdAndWsuId() throws Exception {
+        try {
+            unmarshallModel("complex_policy/policy_with_xmlid_and_wsuid.xml");
+            fail("Should throw an exception");
+        } catch (PolicyException ignored) {
+            // ok.
+        } catch (Exception e) {
+            fail("Should throw PolicyException instead: " + e);
+        }
+    }
+
+    public void testUnmarshallModelWithProperPolicyNamespaceVersion() throws Exception {
+        PolicySourceModel model = unmarshallModel("namespaces/policy-v1.2.xml");
+        assertEquals("Unmarshalled policy namespace version does not match with original.", NamespaceVersion.v1_2, model.getNamespaceVersion());
+
+        model = unmarshallModel("namespaces/policy-v1.5.xml");
+        assertEquals("Unmarshalled policy namespace version does not match with original.", NamespaceVersion.v1_5, model.getNamespaceVersion());
+    }
+
+    private PolicySourceModel unmarshallModel(String resource) throws Exception {
+        Reader reader = PolicyResourceLoader.getResourceReader(resource);
+        final PolicyModelUnmarshaller xmlUnmarshaller = PolicyModelUnmarshaller.getXmlUnmarshaller();
+        PolicySourceModel model = xmlUnmarshaller.unmarshalModel(reader);
+        reader.close();
+        return model;
     }
 
 }
