@@ -41,8 +41,10 @@ import com.sun.xml.ws.policy.sourcemodel.ModelNode;
 import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
 import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+import static com.sun.xml.ws.policy.testutils.PolicyResourceLoader.loadPolicy;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import javax.xml.namespace.QName;
 
 import junit.framework.TestCase;
@@ -297,6 +299,110 @@ public class EffectiveAlternativeSelectorTest extends TestCase {
         else {
             fail("Expected exactly one assertion in the resulting policy.");
         }
+    }
+
+    /**
+     * Test of doSelection method, of class com.sun.xml.ws.policy.EffectiveAlternativeSelector.
+     * @throws Exception
+     */
+    public void testDoPositiveSelection() throws Exception {
+        HashSet<PolicyMapMutator> mutators = new HashSet<PolicyMapMutator>();
+        EffectivePolicyModifier myModifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        mutators.add(myModifier);
+        PolicyMapExtender myExtender = PolicyMapExtender.createPolicyMapExtender();
+        mutators.add(myExtender);
+        PolicyMap policyMap = PolicyMap.createPolicyMap(mutators);
+
+        //Policy pol1 = PolicyModelTranslator.getTranslator()
+        //                .translate(unmarshalModel("single_alternative_policy/policy3.xml"));
+        Policy pol2 = loadPolicy("complex_policy/nested_assertions_with_alternatives.xml");
+
+        PolicyMapKey aKey = PolicyMap.createWsdlEndpointScopeKey(new QName("service"),new QName("port"));
+
+        //myExtender.putEndpointSubject(aKey,new PolicySubject("one",pol1));
+        myExtender.putEndpointSubject(aKey,new PolicySubject("two",pol2));
+
+        //System.out.println(myExtender.getMap());
+
+        if(2>myExtender.getMap().getEndpointEffectivePolicy(aKey).getNumberOfAssertionSets()) {
+            fail("Insufficient number of alternatives found. At least 2 of them needed.");
+        }
+
+        EffectiveAlternativeSelector.doSelection(myModifier);
+
+        if(1!=myExtender.getMap().getEndpointEffectivePolicy(aKey).getNumberOfAssertionSets()) {
+            fail("Too many alternatives has left.");
+        }
+    }
+
+    public void testDoNegativeSelection() throws Exception {
+        HashSet<PolicyMapMutator> mutators = new HashSet<PolicyMapMutator>();
+        EffectivePolicyModifier myModifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        mutators.add(myModifier);
+        PolicyMapExtender myExtender = PolicyMapExtender.createPolicyMapExtender();
+        mutators.add(myExtender);
+        PolicyMap policyMap = PolicyMap.createPolicyMap(mutators);
+
+        //Policy pol1 = PolicyModelTranslator.getTranslator()
+        //                .translate(unmarshalModel("single_alternative_policy/policy3.xml"));
+        Policy pol2 = loadPolicy("complex_policy/nested_assertions_with_alternatives.xml");
+
+        PolicyMapKey aKey = PolicyMap.createWsdlEndpointScopeKey(new QName("service"),new QName("port"));
+
+        //myExtender.putEndpointSubject(aKey,new PolicySubject("one",pol1));
+        myExtender.putEndpointSubject(aKey,new PolicySubject("two",pol2));
+
+        //System.out.println(myExtender.getMap());
+
+        if(2>myExtender.getMap().getEndpointEffectivePolicy(aKey).getNumberOfAssertionSets()) {
+            fail("Insufficient number of alternatives found. At least 2 of them needed.");
+        }
+
+        EffectiveAlternativeSelector.doSelection(myModifier);
+
+        if(1!=myExtender.getMap().getEndpointEffectivePolicy(aKey).getNumberOfAssertionSets()) {
+            fail("Too many alternatives has left.");
+        }
+
+        EffectiveAlternativeSelector.doSelection(myModifier);
+
+        if(1!=myExtender.getMap().getEndpointEffectivePolicy(aKey).getNumberOfAssertionSets()) {
+            fail("Too many alternatives has left.");
+        }
+    }
+
+    public void testDoEmptySelection() throws Exception {
+        HashSet<PolicyMapMutator> mutators = new HashSet<PolicyMapMutator>();
+        EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        mutators.add(modifier);
+        PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        mutators.add(extender);
+        PolicyMap.createPolicyMap(mutators);
+
+        Policy emptyPolicy = Policy.createEmptyPolicy();
+        PolicyMapKey key = PolicyMap.createWsdlEndpointScopeKey(new QName("service"), new QName("port"));
+        extender.putEndpointSubject(key, new PolicySubject("two", emptyPolicy));
+
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        assertTrue(extender.getMap().getEndpointEffectivePolicy(key).isEmpty());
+    }
+
+    public void testDoNullSelection() throws Exception {
+        HashSet<PolicyMapMutator> mutators = new HashSet<PolicyMapMutator>();
+        EffectivePolicyModifier modifier = EffectivePolicyModifier.createEffectivePolicyModifier();
+        mutators.add(modifier);
+        PolicyMapExtender extender = PolicyMapExtender.createPolicyMapExtender();
+        mutators.add(extender);
+        PolicyMap.createPolicyMap(mutators);
+
+        Policy nullPolicy = Policy.createNullPolicy();
+        PolicyMapKey key = PolicyMap.createWsdlEndpointScopeKey(new QName("service"), new QName("port"));
+        extender.putEndpointSubject(key, new PolicySubject("two", nullPolicy));
+
+        EffectiveAlternativeSelector.doSelection(modifier);
+
+        assertTrue(extender.getMap().getEndpointEffectivePolicy(key).isNull());
     }
 
 }

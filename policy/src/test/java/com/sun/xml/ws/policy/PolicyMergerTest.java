@@ -38,9 +38,12 @@ package com.sun.xml.ws.policy;
 
 import com.sun.xml.ws.policy.sourcemodel.AssertionData;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+import com.sun.xml.ws.policy.testutils.PolicyResourceLoader;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 /**
@@ -49,6 +52,8 @@ import junit.framework.TestCase;
  */
 public class PolicyMergerTest extends TestCase {
     
+    private static final PolicyMerger merger = PolicyMerger.getMerger();
+
     public PolicyMergerTest(String testName) {
         super(testName);
     }
@@ -348,6 +353,72 @@ public class PolicyMergerTest extends TestCase {
         if (!expResult1.equals(id)) {
             assertEquals(expResult2, id);
         }
+    }
+
+    public void testMergeTwoPolicies() throws Exception {
+        Collection<Policy> policies = new LinkedList<Policy>();
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy1.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy2.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy3.xml"));
+
+        Policy result = merger.merge(policies);
+        Policy expected = PolicyResourceLoader.loadPolicy("merge/merge_1-2-3.xml");
+
+        assertEquals(expected, result);
+    }
+
+    public void testMergeEmtpyNonEmptyPolicies() throws Exception {
+        Collection<Policy> policies = new LinkedList<Policy>();
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy1.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy-empty-alt.xml"));
+
+        Policy result = merger.merge(policies);
+        Policy expected = PolicyResourceLoader.loadPolicy("merge/policy1.xml");
+
+        assertEquals(expected, result);
+    }
+
+    public void testMergeNoAltPolicies() throws Exception {
+        Collection<Policy> policies = new LinkedList<Policy>();
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy1.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("merge/policy-no-alt.xml"));
+
+        Policy result = merger.merge(policies);
+        Policy expected = PolicyResourceLoader.loadPolicy("merge/policy-no-alt.xml");
+
+        assertEquals(expected, result);
+    }
+
+    public void testMergeNamespaces() throws Exception {
+        Collection<Policy> policies = new LinkedList<Policy>();
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
+        Policy result = merger.merge(policies);
+        assertEquals(
+                "When merging policies with same original namespace, the namespace should be preserved during merge operation",
+                NamespaceVersion.v1_2,
+                result.getNamespaceVersion()
+                );
+
+        policies.clear();
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
+        result = merger.merge(policies);
+        assertEquals(
+                "When merging policies with same original namespace, the namespace should be preserved during merge operation",
+                NamespaceVersion.v1_5,
+                result.getNamespaceVersion()
+                );
+
+        policies.clear();
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
+        policies.add(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
+        result = merger.merge(policies);
+        assertEquals(
+                "When merging policies with different original namespace, the latest namespace should be preserved during merge operation",
+                NamespaceVersion.v1_5,
+                result.getNamespaceVersion()
+                );
     }
 
 }

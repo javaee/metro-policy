@@ -38,10 +38,13 @@ package com.sun.xml.ws.policy.sourcemodel;
 
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+import com.sun.xml.ws.policy.testutils.PolicyResourceLoader;
+
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
 import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 /**
@@ -147,6 +150,15 @@ public class PolicySourceModelTest extends TestCase {
         assertNull(referenceNode.getReferencedModel());
         referringModel.expand(context);
         assertNotNull(referenceNode.getReferencedModel());
+    }
+
+    public void testCloneModel() throws Exception {
+        PolicySourceModel model = PolicyResourceLoader.unmarshallModel("complex_policy/nested_assertions_with_alternatives.xml");
+        PolicySourceModel clone = model.clone();
+
+        model.toString();
+        clone.toString();
+        assertEquals(model, clone);
     }
 
 }
