@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,6 +40,7 @@ import com.sun.xml.ws.policy.privateutil.LocalizationMessages;
 import com.sun.xml.ws.policy.privateutil.PolicyLogger;
 import com.sun.xml.ws.policy.privateutil.PolicyUtils;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.XmlToken;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
@@ -79,6 +80,9 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
         /**
          * Method checks the PSM state machine if the creation of new child of given type is plausible for a node element
          * with type set to this type instance.
+         *
+         * @param childType The type.
+         * @return True if the type is supported, false otherwise
          */
         private boolean isChildTypeSupported(final Type childType) {
             switch (this) {
@@ -110,7 +114,8 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
                             return false;
                     }
                 default:
-                    throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0060_POLICY_ELEMENT_TYPE_UNKNOWN(this)));
+                    throw LOGGER.logSevereException(new IllegalStateException(
+                            LocalizationMessages.WSP_0060_POLICY_ELEMENT_TYPE_UNKNOWN(this)));
             }
         }
     }
@@ -171,10 +176,10 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @return A new Policy node.
      */
     public ModelNode createChildPolicyNode() {
         checkCreateChildOperationSupportForType(Type.POLICY);
@@ -186,10 +191,10 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @return A new All node.
      */
     public ModelNode createChildAllNode() {
         checkCreateChildOperationSupportForType(Type.ALL);
@@ -201,10 +206,10 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @return A new ExactlyOne node.
      */
     public ModelNode createChildExactlyOneNode() {
         checkCreateChildOperationSupportForType(Type.EXACTLY_ONE);
@@ -216,10 +221,10 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     * 
+     * @return A new policy assertion node.
      */
     public ModelNode createChildAssertionNode() {
         checkCreateChildOperationSupportForType(Type.ASSERTION);
@@ -231,10 +236,11 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @param nodeData The policy assertion data.
+     * @return A new policy assertion node.
      */
     public ModelNode createChildAssertionNode(final AssertionData nodeData) {
         checkCreateChildOperationSupportForType(Type.ASSERTION);
@@ -246,10 +252,10 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @return A new assertion parameter node.
      */
     public ModelNode createChildAssertionParameterNode() {
         checkCreateChildOperationSupportForType(Type.ASSERTION_PARAMETER_NODE);
@@ -261,10 +267,11 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @param nodeData The assertion parameter data.
+     * @return A new assertion parameter node.
      */
     ModelNode createChildAssertionParameterNode(final AssertionData nodeData) {
         checkCreateChildOperationSupportForType(Type.ASSERTION_PARAMETER_NODE);
@@ -276,10 +283,11 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
     }
     
     /**
-     * TODO: proper java doc
-     *
      * Factory method that creates new policy source model node as specified by a factory method name and input parameters.
      * Each node is created with respect to its enclosing policy source model.
+     *
+     * @param referenceData The PolicyReference data.
+     * @return A new PolicyReference node.
      */
     ModelNode createChildPolicyReferenceNode(final PolicyReferenceData referenceData) {
         checkCreateChildOperationSupportForType(Type.POLICY_REFERENCE);
@@ -295,23 +303,6 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
         return unmodifiableViewOnContent;
     }
     
-//    Collection<ModelNode> getAssertionParameterNodeChildren() {
-//        Collection<ModelNode> result = null;
-//
-//        if (isAssertionRelatedNode()) {
-//
-//            result = new LinkedList<ModelNode>();
-//
-//            for (ModelNode child : content) {
-//                if (child.type == Type.ASSERTION_PARAMETER_NODE) {
-//                    result.add(child);
-//                }
-//            }
-//        }
-//
-//        return result;
-//    }
-//
     /**
      * Sets the parent model reference on the node and its children. The method may be invoked only on the root node
      * of the policy source model (or - in general - on a model node that dose not reference a parent node). Otherwise an
@@ -442,9 +433,6 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
         return true;
     }
     
-    /**
-     *
-     */
     void setReferencedModel(final PolicySourceModel model) {
         if (this.type != Type.POLICY_REFERENCE) {
             throw LOGGER.logSevereException(new UnsupportedOperationException(LocalizationMessages.WSP_0050_OPERATION_NOT_SUPPORTED_FOR_THIS_BUT_POLICY_REFERENCE_NODE_TYPE(type)));
@@ -564,6 +552,14 @@ public final class ModelNode implements Iterable<ModelNode>, Cloneable {
                 buffer.append(innerIndent).append("no policy reference data set");
             } else {
                 referenceData.toString(indentLevel + 1, buffer);
+            }
+            buffer.append(PolicyUtils.Text.NEW_LINE);
+        } else if (type == Type.ASSERTION_PARAMETER_NODE) {
+            if (nodeData == null) {
+                buffer.append(innerIndent).append("no parameter data set");
+            }
+            else {
+                nodeData.toString(indentLevel + 1, buffer);
             }
             buffer.append(PolicyUtils.Text.NEW_LINE);
         }
