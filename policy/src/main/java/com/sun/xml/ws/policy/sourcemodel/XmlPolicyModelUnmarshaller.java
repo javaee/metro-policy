@@ -60,6 +60,7 @@ import javax.xml.stream.events.StartElement;
 import javax.xml.stream.events.XMLEvent;
 
 /**
+ * Unmarshal XML policy expressions.
  *
  * @author Marek Potociar
  * @author Fabian Ritzmann
@@ -267,7 +268,7 @@ public class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
     }
 
     private String unmarshalNodeContent(final NamespaceVersion nsVersion, final ModelNode node, final QName nodeElementName, final XMLEventReader reader) throws PolicyException {
-        StringBuffer valueBuffer = null;
+        StringBuilder valueBuffer = null;
 
         loop:
         while (reader.hasNext()) {
@@ -300,7 +301,7 @@ public class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
             }
         }
 
-        return (valueBuffer == null) ? null : valueBuffer.toString();
+        return (valueBuffer == null) ? null : valueBuffer.toString().trim();
     }
 
     /**
@@ -344,13 +345,13 @@ public class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
 
     }
 
-    private StringBuffer processCharacters(final ModelNode.Type currentNodeType, final Characters characters,
-            final StringBuffer currentValueBuffer)
+    private StringBuilder processCharacters(final ModelNode.Type currentNodeType, final Characters characters,
+            final StringBuilder currentValueBuffer)
             throws PolicyException {
         if (characters.isWhiteSpace()) {
             return currentValueBuffer;
         } else {
-            final StringBuffer buffer = (currentValueBuffer == null) ? new StringBuffer() : currentValueBuffer;
+            final StringBuilder buffer = (currentValueBuffer == null) ? new StringBuilder() : currentValueBuffer;
             final String data = characters.getData();
             if (currentNodeType == ModelNode.Type.ASSERTION || currentNodeType == ModelNode.Type.ASSERTION_PARAMETER_NODE) {
                 return buffer.append(data);
@@ -360,4 +361,5 @@ public class XmlPolicyModelUnmarshaller extends PolicyModelUnmarshaller {
 
         }
     }
+    
 }
