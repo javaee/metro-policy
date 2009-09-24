@@ -199,6 +199,41 @@ public class XmlPolicyModelUnmarshallerTest extends TestCase {
         fail("Failed to find KeyType assertion parameter.");
     }
 
+    public void testComment() throws Exception {
+         final PolicySourceModel model = unmarshalModel("bug_reproduction/comment1.xml");
+        final ModelNode root = model.getRootNode();
+        final ModelNode exactlyOne = root.iterator().next();
+        final ModelNode all = exactlyOne.iterator().next();
+        for (ModelNode symmetricBinding : all) {
+            if (symmetricBinding.getNodeData().getName().equals(
+                    new QName("http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", "SymmetricBinding"))) {
+                final ModelNode policy = symmetricBinding.iterator().next();
+                for (ModelNode protectionToken : policy) {
+                    if (protectionToken.getNodeData().getName().equals(
+                            new QName("http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", "ProtectionToken"))) {
+                        final ModelNode policy2 = protectionToken.iterator().next();
+                        final ModelNode issuedToken = policy2.iterator().next();
+                        for (ModelNode requestToken : issuedToken) {
+                            if (requestToken.getType() == ModelNode.Type.ASSERTION_PARAMETER_NODE &&
+                                requestToken.getNodeData().getName().equals(
+                                    new QName("http://docs.oasis-open.org/ws-sx/ws-securitypolicy/200702", "RequestSecurityTokenTemplate"))) {
+                                for (ModelNode keyType : requestToken) {
+                                    if (keyType.getNodeData().getName().equals(
+                                            new QName("http://docs.oasis-open.org/ws-sx/ws-trust/200512", "KeyType"))) {
+                                        assertEquals("http://docs.oasis-open.org/ws-sx/ws-trust/200512/SymmetricKey",
+                                                keyType.getNodeData().getValue());
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        fail("Failed to find KeyType assertion parameter.");
+   }
+
     private PolicySourceModel unmarshalModel(String resource) throws Exception {
         Reader reader = PolicyResourceLoader.getResourceReader(resource);
         final PolicyModelUnmarshaller xmlUnmarshaller = PolicyModelUnmarshaller.getXmlUnmarshaller();
