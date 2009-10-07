@@ -93,8 +93,7 @@ public class ExternalAttachmentsUnmarshaller {
     private static final QName APPLIES_TO = new QName("http://www.w3.org/ns/ws-policy", "AppliesTo");
     private static final QName POLICY = new QName("http://www.w3.org/ns/ws-policy", "Policy");
     private static final QName URI = new QName("http://www.w3.org/ns/ws-policy", "URI");
-    private static final String SUN_POLICIES_LOCAL = "Policies";
-    private static final QName POLICIES = new QName(PolicyConstants.SUN_MANAGEMENT_NAMESPACE, SUN_POLICIES_LOCAL);
+    private static final QName POLICIES = new QName(PolicyConstants.SUN_MANAGEMENT_NAMESPACE, "Policies");
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
     private static final PolicyModelUnmarshaller POLICY_UNMARSHALLER = PolicyModelUnmarshaller.getXmlUnmarshaller();
 
