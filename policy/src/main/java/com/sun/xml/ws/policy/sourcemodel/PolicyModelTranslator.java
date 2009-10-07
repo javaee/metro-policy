@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2007 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -56,13 +56,14 @@ import com.sun.xml.ws.policy.spi.AssertionCreationException;
 import com.sun.xml.ws.policy.spi.PolicyAssertionCreator;
 
 /**
- * This class provides method for translating {@link PolicySourceModel} structure into normalized {@link Policy} expression.
- * The resulting Policy is disconnected from its model, thus any additional changes in model will have no effect on the Policy
+ * This class provides a method for translating a {@link PolicySourceModel} structure to a normalized {@link Policy} expression.
+ * The resulting Policy is disconnected from its model, thus any additional changes in the model will have no effect on the Policy
  * expression.
  *
  * @author Marek Potociar
+ * @author Fabian Ritzmann
  */
-public final class PolicyModelTranslator {
+public class PolicyModelTranslator {
     
     private static final class ContentDecomposition {
         final List<Collection<ModelNode>> exactlyOneContents = new LinkedList<Collection<ModelNode>>();
@@ -137,71 +138,71 @@ public final class PolicyModelTranslator {
     }
     
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyModelTranslator.class);
-    private static final PolicyModelTranslator translator = new PolicyModelTranslator();
     
     private static final PolicyAssertionCreator defaultCreator = new DefaultPolicyAssertionCreator();
-    private static final Map<String, PolicyAssertionCreator> assertionCreators;
-    private static final PolicyException initialException;
+
+    private final Map<String, PolicyAssertionCreator> assertionCreators;
     
-    static {
-        Map<String, PolicyAssertionCreator> tempMap = null;
-        PolicyException tempException = null;
-        try {
-            tempMap = initPolicyAssertionCreatorsMap();
-        } catch (PolicyException ex) {
-            tempException = ex;
-        } finally {
-            assertionCreators = tempMap;
-            initialException = tempException;
-        }
+
+    private PolicyModelTranslator() throws PolicyException {
+        this(null);
     }
-    
-    /**
-     * Initializes the map of domain-specific policy policy assertion creators
-     */
-    private static Map<String, PolicyAssertionCreator> initPolicyAssertionCreatorsMap() throws PolicyException {
-        LOGGER.entering();
-        Map<String, PolicyAssertionCreator> pacMap = new HashMap<String, PolicyAssertionCreator>();
-        
-        final PolicyAssertionCreator[] creators = PolicyUtils.ServiceProvider.load(PolicyAssertionCreator.class);
-        for (PolicyAssertionCreator creator : creators) {
+
+    protected PolicyModelTranslator(final Collection<PolicyAssertionCreator> creators) throws PolicyException {
+        LOGGER.entering(creators);
+
+        final Collection<PolicyAssertionCreator> allCreators = new LinkedList<PolicyAssertionCreator>();
+        final PolicyAssertionCreator[] discoveredCreators = PolicyUtils.ServiceProvider.load(PolicyAssertionCreator.class);
+        for (PolicyAssertionCreator creator : discoveredCreators) {
+            allCreators.add(creator);
+        }
+        if (creators != null) {
+            for (PolicyAssertionCreator creator : creators) {
+                allCreators.add(creator);
+            }
+        }
+
+        final Map<String, PolicyAssertionCreator> pacMap = new HashMap<String, PolicyAssertionCreator>();
+        for (PolicyAssertionCreator creator : allCreators) {
             final String[] supportedURIs = creator.getSupportedDomainNamespaceURIs();
             final String creatorClassName = creator.getClass().getName();
-            
+
             if (supportedURIs == null || supportedURIs.length == 0) {
                 LOGGER.warning(LocalizationMessages.WSP_0077_ASSERTION_CREATOR_DOES_NOT_SUPPORT_ANY_URI(creatorClassName));
                 continue;
             }
-            
+
             for (String supportedURI : supportedURIs) {
                 LOGGER.config(LocalizationMessages.WSP_0078_ASSERTION_CREATOR_DISCOVERED(creatorClassName, supportedURI));
                 if (supportedURI == null || supportedURI.length() == 0) {
-                    throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0070_ERROR_REGISTERING_ASSERTION_CREATOR(creatorClassName)));
+                    throw LOGGER.logSevereException(new PolicyException(
+                            LocalizationMessages.WSP_0070_ERROR_REGISTERING_ASSERTION_CREATOR(creatorClassName)));
                 }
-                
+
                 final PolicyAssertionCreator oldCreator = pacMap.put(supportedURI, creator);
                 if (oldCreator != null) {
-                    throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0071_ERROR_MULTIPLE_ASSERTION_CREATORS_FOR_NAMESPACE(supportedURI, oldCreator.getClass().getName(), creator.getClass().getName())));
+                    throw LOGGER.logSevereException(new PolicyException(
+                            LocalizationMessages.WSP_0071_ERROR_MULTIPLE_ASSERTION_CREATORS_FOR_NAMESPACE(
+                            supportedURI, oldCreator.getClass().getName(), creator.getClass().getName())));
                 }
             }
         }
-        
-        pacMap = Collections.unmodifiableMap(pacMap);
-        LOGGER.exiting(pacMap);
-        return pacMap;
+
+        this.assertionCreators = Collections.unmodifiableMap(pacMap);
+        LOGGER.exiting();
     }
-    
+
     /**
      * Method returns thread-safe policy model translator instance.
      *
-     * @return a policy model translator instance.
+     * This method is only intended to be used by code that has no dependencies on
+     * JAX-WS. Otherwise use com.sun.xml.ws.policy.api.ModelTranslator.
+     *
+     * @return A policy model translator instance.
+     * @throws PolicyException If instantiating a PolicyAssertionCreator failed.
      */
     public static PolicyModelTranslator getTranslator() throws PolicyException {
-        if (initialException != null) {
-            throw LOGGER.logSevereException(initialException);
-        }
-        
-        return translator;
+        return new PolicyModelTranslator();
     }
     
     /**
@@ -438,7 +439,7 @@ public final class PolicyModelTranslator {
         return assertionOptions;
     }
     
-    private static PolicyAssertion createPolicyAssertionParameter(final ModelNode parameterNode) throws AssertionCreationException, PolicyException {
+    private PolicyAssertion createPolicyAssertionParameter(final ModelNode parameterNode) throws AssertionCreationException, PolicyException {
         if (parameterNode.getType() != ModelNode.Type.ASSERTION_PARAMETER_NODE) {
             throw LOGGER.logSevereException(new PolicyException(LocalizationMessages.WSP_0065_INCONSISTENCY_IN_POLICY_SOURCE_MODEL(parameterNode.getType())));
         }
@@ -454,7 +455,7 @@ public final class PolicyModelTranslator {
         return createPolicyAssertion(parameterNode.getNodeData(), childParameters, null /* parameters do not have any nested alternatives */);
     }
     
-    private static PolicyAssertion createPolicyAssertion(final AssertionData data, final Collection<PolicyAssertion> assertionParameters, final AssertionSet nestedAlternative) throws AssertionCreationException {
+    private PolicyAssertion createPolicyAssertion(final AssertionData data, final Collection<PolicyAssertion> assertionParameters, final AssertionSet nestedAlternative) throws AssertionCreationException {
         final String assertionNamespace = data.getName().getNamespaceURI();
         final PolicyAssertionCreator domainSpecificPAC = assertionCreators.get(assertionNamespace);
         
@@ -465,4 +466,5 @@ public final class PolicyModelTranslator {
             return domainSpecificPAC.createAssertion(data, assertionParameters, nestedAlternative, defaultCreator);
         }
     }
+
 }
