@@ -234,6 +234,14 @@ public class XmlPolicyModelUnmarshallerTest extends TestCase {
         fail("Failed to find KeyType assertion parameter.");
    }
 
+    /**
+     * Testcase for https://wsit.dev.java.net/issues/show_bug.cgi?id=1305
+     * @throws Exception
+     */
+    public void testPolicyAssertionOptionalFalse() throws Exception {
+        PolicySourceModel model = unmarshalModel("bug_reproduction/assertion_optional_false_unmarshalling.xml");
+        assertFalse(model.getRootNode().getChildren().iterator().next().getNodeData().isOptionalAttributeSet());        
+    }
     private PolicySourceModel unmarshalModel(String resource) throws Exception {
         Reader reader = PolicyResourceLoader.getResourceReader(resource);
         final PolicyModelUnmarshaller xmlUnmarshaller = PolicyModelUnmarshaller.getXmlUnmarshaller();
