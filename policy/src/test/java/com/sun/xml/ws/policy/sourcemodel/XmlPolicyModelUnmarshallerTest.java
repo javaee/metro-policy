@@ -242,6 +242,7 @@ public class XmlPolicyModelUnmarshallerTest extends TestCase {
         PolicySourceModel model = unmarshalModel("bug_reproduction/assertion_optional_false_unmarshalling.xml");
         assertFalse(model.getRootNode().getChildren().iterator().next().getNodeData().isOptionalAttributeSet());        
     }
+    
     private PolicySourceModel unmarshalModel(String resource) throws Exception {
         Reader reader = PolicyResourceLoader.getResourceReader(resource);
         final PolicyModelUnmarshaller xmlUnmarshaller = PolicyModelUnmarshaller.getXmlUnmarshaller();
