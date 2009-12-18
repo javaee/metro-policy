@@ -164,11 +164,15 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <tasks>
-                                <ant dir="${basedir}" target="resgen">
-                                    <property name="resgen.classpath" refid="maven.compile.classpath"/>
-                                    <property name="src.dir" value="${basedir}/src/main/java"/>
-                                    <property name="build.gen-src.dir" value="${project.build.directory}/generated-sources/ant"/>
-                                </ant>
+                                <taskdef name="resgen" classname="com.sun.istack.build.ResourceGenTask">
+                                    <classpath refid="maven.compile.classpath"/>
+                                </taskdef>
+
+                                <mkdir dir="${project.build.directory}/generated-sources/ant"/>
+
+                                <resgen destdir="${project.build.directory}/generated-sources/ant">
+                                    <resource dir="${basedir}/src/main/java" includes="com/sun/xml/ws/**/*.properties"/>
+                                </resgen>
                             </tasks>
                             <sourceRoot>
                                 ${project.build.directory}/generated-sources/ant
