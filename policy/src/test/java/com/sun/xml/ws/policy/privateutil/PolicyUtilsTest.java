@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -38,8 +38,10 @@ package com.sun.xml.ws.policy.privateutil;
 
 import com.sun.xml.ws.policy.PolicyException;
 import com.sun.xml.ws.policy.spi.PolicyAssertionCreator;
+
 import java.io.Closeable;
 import javax.xml.stream.XMLStreamReader;
+
 import junit.framework.TestCase;
 
 /**
@@ -59,7 +61,7 @@ public class PolicyUtilsTest extends TestCase {
     @Override
     protected void tearDown() throws Exception {
     }
-        
+
     /**
      * Test of getStackMethodName method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Commons.
      */
@@ -110,13 +112,26 @@ public class PolicyUtilsTest extends TestCase {
     /**
      * Test of closeResource method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.IO.
      */
-    public void testIOCloseResource() {
+    public void testIOCloseResourceCloseableNull() {
         PolicyUtils.IO.closeResource((Closeable) null);
-        PolicyUtils.IO.closeResource((XMLStreamReader) null);
-        
-        // TODO: add more testing code 
     }
     
+    /**
+     * Test of closeResource method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.IO.
+     */
+    public void testIOCloseResourceCloseable() {
+        final MockCloseable closeable = new MockCloseable();
+        PolicyUtils.IO.closeResource(closeable);
+        assertTrue(closeable.isClosed());
+    }
+
+    /**
+     * Test of closeResource method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.IO.
+     */
+    public void testIOCloseResourceXMLStreamReaderNull() {
+        PolicyUtils.IO.closeResource((XMLStreamReader) null);
+    }
+
     /**
      * Test of createIndent method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Text.
      */
@@ -310,6 +325,21 @@ public class PolicyUtilsTest extends TestCase {
         } catch (RuntimePolicyUtilsException e) {
             // expected
         }
+    }
+
+
+    private class MockCloseable implements Closeable {
+
+        private boolean isClosed = false;
+
+        public void close() {
+            isClosed = true;
+        }
+
+        public boolean isClosed() {
+            return isClosed;
+        }
+
     }
 
 }
