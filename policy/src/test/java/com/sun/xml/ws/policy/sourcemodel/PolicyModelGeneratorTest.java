@@ -38,6 +38,7 @@ package com.sun.xml.ws.policy.sourcemodel;
 
 import com.sun.xml.ws.policy.Policy;
 import com.sun.xml.ws.policy.PolicyException;
+import com.sun.xml.ws.policy.sourcemodel.PolicyModelGenerator.PolicySourceModelCreator;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
 import com.sun.xml.ws.policy.testutils.PolicyResourceLoader;
 
@@ -70,7 +71,9 @@ public class PolicyModelGeneratorTest extends TestCase {
     }
 
     private PolicyModelTranslator translator;
-    private PolicyModelGenerator generator = PolicyModelGenerator.getGenerator();
+    private PolicyModelGenerator normalGenerator = PolicyModelGenerator.getGenerator();
+    private PolicyModelGenerator compactGenerator = PolicyModelGenerator.getCompactGenerator(
+            new PolicySourceModelCreator());
     
     
     public PolicyModelGeneratorTest(String testName) {
@@ -130,28 +133,41 @@ public class PolicyModelGeneratorTest extends TestCase {
             Policy compactModelPolicy = translator.translate(compactModel);
             Policy normalizedModelPolicy = translator.translate(normalizedModel);
 
-            PolicySourceModel generatedCompactModel = generator.translate(compactModelPolicy);
-            PolicySourceModel generatedNormalizedModel = generator.translate(normalizedModelPolicy);
+            PolicySourceModel generatedCompactModel = compactGenerator.translate(compactModelPolicy);
+            PolicySourceModel generatedNormalizedModel = normalGenerator.translate(normalizedModelPolicy);
 
             Policy generatedCompactModelPolicy = translator.translate(generatedCompactModel);
             Policy generatedNormalizedModelPolicy = translator.translate(generatedNormalizedModel);
 
-            assertEquals("Generated compact policy should contain '" + expectedNumberOfAlternatives + "' alternatives", expectedNumberOfAlternatives,generatedCompactModelPolicy.getNumberOfAssertionSets());
-            assertEquals("Generated and translated compact model policy instances should contain equal number of alternatives", compactModelPolicy.getNumberOfAssertionSets(), generatedCompactModelPolicy.getNumberOfAssertionSets());
-            assertEquals("Generated and translated compact policy expression should form equal Policy instances", compactModelPolicy, generatedCompactModelPolicy);
+            assertEquals("Generated compact policy should contain '" + expectedNumberOfAlternatives + "' alternatives",
+                    expectedNumberOfAlternatives, generatedCompactModelPolicy.getNumberOfAssertionSets());
+            assertEquals("Generated and translated compact model policy instances should contain equal number of alternatives",
+                    compactModelPolicy.getNumberOfAssertionSets(), generatedCompactModelPolicy.getNumberOfAssertionSets());
+            assertEquals("Generated and translated compact policy expression should form equal Policy instances",
+                    compactModelPolicy, generatedCompactModelPolicy);
 
-            assertEquals("Generated normalized policy should contain '" + expectedNumberOfAlternatives + "' alternatives", expectedNumberOfAlternatives, generatedNormalizedModelPolicy.getNumberOfAssertionSets());
-            assertEquals("Generated and translated normalized model policy instances should contain equal number of alternatives", normalizedModelPolicy.getNumberOfAssertionSets(), generatedNormalizedModelPolicy.getNumberOfAssertionSets());
-            assertEquals("Generated and translated normalized policy expression should form equal Policy instances", normalizedModelPolicy, generatedNormalizedModelPolicy);
+            assertEquals("Generated normalized policy should contain '" + expectedNumberOfAlternatives + "' alternatives",
+                    expectedNumberOfAlternatives, generatedNormalizedModelPolicy.getNumberOfAssertionSets());
+            assertEquals("Generated and translated normalized model policy instances should contain equal number of alternatives",
+                    normalizedModelPolicy.getNumberOfAssertionSets(), generatedNormalizedModelPolicy.getNumberOfAssertionSets());
+            assertEquals("Generated and translated normalized policy expression should form equal Policy instances",
+                    normalizedModelPolicy, generatedNormalizedModelPolicy);
 
             // TODO: somehow compare models, because now the test only checks if the translation does not end in some exception...
         }
     }
 
     public void testPreserveOriginalNamespaceInformation() throws Exception {
-        PolicySourceModel model = generator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
+        PolicySourceModel model = normalGenerator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
         assertEquals("Namespace does not match original", NamespaceVersion.v1_2, model.getNamespaceVersion());
-        model = generator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
+        model = normalGenerator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
+        assertEquals("Namespace does not match original", NamespaceVersion.v1_5, model.getNamespaceVersion());
+    }
+
+    public void testPreserveOriginalNamespaceInformationCompact() throws Exception {
+        PolicySourceModel model = compactGenerator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.2.xml"));
+        assertEquals("Namespace does not match original", NamespaceVersion.v1_2, model.getNamespaceVersion());
+        model = compactGenerator.translate(PolicyResourceLoader.loadPolicy("namespaces/policy-v1.5.xml"));
         assertEquals("Namespace does not match original", NamespaceVersion.v1_5, model.getNamespaceVersion());
     }
 
