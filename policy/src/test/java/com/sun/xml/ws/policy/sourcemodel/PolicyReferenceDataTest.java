@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
+ *
  * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
- * 
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -10,7 +10,7 @@
  * a copy of the License at https://glassfish.dev.java.net/public/CDDL+GPL.html
  * or glassfish/bootstrap/legal/LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
  * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
  * Sun designates this particular file as subject to the "Classpath" exception
@@ -19,9 +19,9 @@
  * Header, with the fields enclosed by brackets [] replaced by your own
  * identifying information: "Portions Copyrighted [year]
  * [name of copyright owner]"
- * 
+ *
  * Contributor(s):
- * 
+ *
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
  * elects to include this software in this distribution under the [CDDL or GPL
@@ -36,55 +36,31 @@
 
 package com.sun.xml.ws.policy.sourcemodel;
 
-import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
+import junit.framework.Test;
+import junit.framework.TestSuite;
+import junit.framework.TestCase;
 
 /**
+ * PolicyReferenceData Tester.
  *
- * @author Marek Potociar, Jakub Podlesak
+ * @author Fabian Ritzmann
  */
-public final class PolicySourceModelContext {
-    
-    Map<URI,PolicySourceModel> policyModels;
-    
-    /** 
-     * Private constructor prevents instantiation of the instance from outside of the class
-     */
-    private PolicySourceModelContext() {
-        // nothing to initialize
-    }
-    
-    private Map<URI,PolicySourceModel> getModels() {
-        if (null==policyModels) {
-            policyModels = new HashMap<URI,PolicySourceModel>();
-        }
-        return policyModels;
-    }
-    
-    public void addModel(final URI modelUri, final PolicySourceModel model) {
-        getModels().put(modelUri,model);
-    }
-    
-    public static PolicySourceModelContext createContext() {
-        return new PolicySourceModelContext();
-    }
-    
-    public boolean containsModel(final URI modelUri) {
-        return getModels().containsKey(modelUri);
-    }
-    
-    PolicySourceModel retrieveModel(final URI modelUri) {
-        return getModels().get(modelUri);
-    }
-    
-    PolicySourceModel retrieveModel(final URI modelUri, final URI digestAlgorithm, final String digest) {
-        // TODO: implement
-        throw new UnsupportedOperationException();
+public class PolicyReferenceDataTest extends TestCase {
+
+    public PolicyReferenceDataTest(String name) {
+        super(name);
     }
 
-    @Override
-    public String toString() {
-        return "PolicySourceModelContext: policyModels = " + this.policyModels;
+    public void setUp() throws Exception {
+        super.setUp();
+    }
+
+    public void tearDown() throws Exception {
+        super.tearDown();
+    }
+
+    public void testToStringNull() {
+        final PolicyReferenceData instance = new PolicyReferenceData(null);
+        assertNotNull(instance.toString());
     }
 }
