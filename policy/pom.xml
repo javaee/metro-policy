@@ -42,7 +42,7 @@
     <groupId>com.sun.xml.ws</groupId>
     <artifactId>policy</artifactId>
     <packaging>jar</packaging>
-    <version>2.1-SNAPSHOT</version>
+    <version>2.2-SNAPSHOT</version>
     <name>policy</name>
     <url>https://policy.dev.java.net/</url>
     
@@ -75,13 +75,13 @@
         <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
-            <version>1.1-SNAPSHOT</version>
+            <version>2.2</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>woodstox</groupId>
+            <groupId>org.codehaus.woodstox</groupId>
             <artifactId>wstx-asl</artifactId>
-            <version>3.2.1</version>
+            <version>3.2.3</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
