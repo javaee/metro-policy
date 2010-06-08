@@ -42,7 +42,7 @@
     <groupId>com.sun.xml.ws</groupId>
     <artifactId>policy</artifactId>
     <packaging>jar</packaging>
-    <version>1.2-SNAPSHOT</version>
+    <version>1.2.1-SNAPSHOT</version>
     <name>policy</name>
     <url>https://policy.dev.java.net/</url>
     
