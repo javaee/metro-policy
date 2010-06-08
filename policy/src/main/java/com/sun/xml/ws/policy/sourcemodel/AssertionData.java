@@ -49,7 +49,7 @@ import java.util.Set;
 import javax.xml.namespace.QName;
 
 /**
- * Wrapper class for possible data that each 'assertion' and 'assertion parameter content' policy source model node may
+ * Wrapper class for possible data that each "assertion" and "assertion parameter content" policy source model node may
  * have attached.
  * <p/>
  * This data, when stored in an 'assertion' model node, is intended to be used as input parameter when creating
@@ -65,7 +65,7 @@ public final class AssertionData implements Cloneable, Serializable {
 
     private final QName name;
     private final String value;
-    private Map<QName, String> attributes = new HashMap<QName, String>();
+    private final Map<QName, String> attributes;
     private ModelNode.Type type;
 
     private boolean optional;
@@ -155,7 +155,9 @@ public final class AssertionData implements Cloneable, Serializable {
         this.value = value;
         this.optional = optional;
         this.ignorable = ignorable;
-        if (attributes != null) {
+
+        this.attributes = new HashMap<QName, String>();
+        if (attributes != null && !attributes.isEmpty()) {
             this.attributes.putAll(attributes);
         }
         setModelNodeType(type);
@@ -178,7 +180,8 @@ public final class AssertionData implements Cloneable, Serializable {
     AssertionData(final AssertionData data) {
         this.name = data.name;
         this.value = data.value;
-        if (attributes != null) {
+        this.attributes = new HashMap<QName, String>();
+        if (!data.attributes.isEmpty()) {
             this.attributes.putAll(data.attributes);
         }
         this.type = data.type;
@@ -186,11 +189,7 @@ public final class AssertionData implements Cloneable, Serializable {
 
     @Override
     protected AssertionData clone() throws CloneNotSupportedException {
-        final AssertionData clone = (AssertionData) super.clone();
-
-        clone.attributes = new HashMap<QName, String>(this.attributes);
-
-        return clone;
+        return (AssertionData) super.clone();
     }
 
     /**
@@ -222,7 +221,7 @@ public final class AssertionData implements Cloneable, Serializable {
         result = result && this.name.equals(that.name);
         result = result && ((this.value == null) ? that.value == null : this.value.equals(that.value));
         synchronized (attributes) {
-            result = result && ((this.attributes == null) ? that.attributes == null : this.attributes.equals(that.attributes));
+            result = result && this.attributes.equals(that.attributes);
         }
 
         return result;
@@ -280,7 +279,7 @@ public final class AssertionData implements Cloneable, Serializable {
     /**
      * Returns the name of the assertion.
      *
-     * @return assetion's name
+     * @return assertion's name
      */
     public QName getName() {
         return name;
@@ -290,7 +289,7 @@ public final class AssertionData implements Cloneable, Serializable {
     /**
      * Returns the value of the assertion.
      *
-     * @return assetion's value
+     * @return assertion's value
      */
     public String getValue() {
         return value;
@@ -317,7 +316,7 @@ public final class AssertionData implements Cloneable, Serializable {
      * Method specifies whether the assertion data contain proprietary visibility element set to "private" value.
      *
      * @return {@code 'true'} if the attribute is present and set properly (i.e. the node containing this assertion data instance should
-     * not be marshalled int generated WSDL documents). Returns {@code false} otherwise.
+     * not be marshaled into generated WSDL documents). Returns {@code false} otherwise.
      */
     public boolean isPrivateAttributeSet() {
         return PolicyConstants.VISIBILITY_VALUE_PRIVATE.equals(getAttributeValue(PolicyConstants.VISIBILITY_ATTRIBUTE));
