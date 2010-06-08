@@ -306,7 +306,7 @@ public final class AssertionData implements Cloneable, Serializable {
         result = 37 * result + this.name.hashCode();
         result = 37 * result + ((this.value == null) ? 0 : this.value.hashCode());
         synchronized (attributes) {
-            result = 37 * result + ((this.attributes == null) ? 0 : this.attributes.hashCode());
+            result = 37 * result + this.attributes.hashCode();
         }
         return result;
     }
