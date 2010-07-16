@@ -87,15 +87,15 @@ final public class PolicyMapKey  {
         this.handler = that.handler;
     }
 
-    QName getOperation() {
+    public QName getOperation() {
         return operation;
     }
 
-    QName getPort() {
+    public QName getPort() {
         return port;
     }
 
-    QName getService() {
+    public QName getService() {
         return service;
     }
 
