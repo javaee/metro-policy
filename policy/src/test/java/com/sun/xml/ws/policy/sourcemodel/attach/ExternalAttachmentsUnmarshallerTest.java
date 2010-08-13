@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright 1997-2009 Sun Microsystems, Inc. All rights reserved.
+ * Copyright 1997-2010 Sun Microsystems, Inc. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -92,6 +92,74 @@ public class ExternalAttachmentsUnmarshallerTest extends TestCase {
                 "    <foo:TopLevelAssertion_1 />" +
                 "  </wsp:Policy>" +
                 "</wsp:PolicyAttachment>";
+        final StringReader reader = new StringReader(policies);
+        try {
+            final Map<URI, Policy> result = ExternalAttachmentsUnmarshaller.unmarshal(reader);
+            fail("Expected PolicyException, got result = " + result);
+        } catch (PolicyException e) {
+        }
+    }
+
+    public void testUnmarshalUnknownElement() {
+        final String policies = "<sunman:Policies " +
+                "xmlns:sunman=\"http://java.sun.com/xml/ns/metro/management\" " +
+                "xmlns:wsp=\"http://www.w3.org/ns/ws-policy\" " +
+                "xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" " +
+                "xmlns:foo=\"http://schemas.example.net/\">" +
+                "  <wsp:PolicyAttachment>" +
+                "    <wsp:AppliesTo>" +
+                "      <wsp:URI>urn:uuid:c9bef600-0d7a-11de-abc1-0002a5d5c51b</wsp:URI>" +
+                "    </wsp:AppliesTo>" +
+                "    <UnknownElement>" +
+                "    </UnknownElement>" +
+                "  </wsp:PolicyAttachment>" +
+                "</sunman:Policies>";
+        final StringReader reader = new StringReader(policies);
+        try {
+            final Map<URI, Policy> result = ExternalAttachmentsUnmarshaller.unmarshal(reader);
+            fail("Expected PolicyException, got result = " + result);
+        } catch (PolicyException e) {
+        }
+    }
+
+    public void testUnmarshalUnknownElement2() {
+        final String policies = "<sunman:Policies " +
+                "xmlns:sunman=\"http://java.sun.com/xml/ns/metro/management\" " +
+                "xmlns:wsp=\"http://www.w3.org/ns/ws-policy\" " +
+                "xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" " +
+                "xmlns:foo=\"http://schemas.example.net/\">" +
+                "  <UnknownElement>" +
+                "    <wsp:AppliesTo>" +
+                "      <wsp:URI>urn:uuid:c9bef600-0d7a-11de-abc1-0002a5d5c51b</wsp:URI>" +
+                "    </wsp:AppliesTo>" +
+                "    <wsp:Policy wsu:Id=\"binding-policy\">" +
+                "      <foo:TopLevelAssertion_1 />" +
+                "    </wsp:Policy>" +
+                "  </UnknownElement>" +
+                "</sunman:Policies>";
+        final StringReader reader = new StringReader(policies);
+        try {
+            final Map<URI, Policy> result = ExternalAttachmentsUnmarshaller.unmarshal(reader);
+            fail("Expected PolicyException, got result = " + result);
+        } catch (PolicyException e) {
+        }
+    }
+
+    public void testUnmarshalInvalidEndTag() {
+        final String policies = "<sunman:Policies " +
+                "xmlns:sunman=\"http://java.sun.com/xml/ns/metro/management\" " +
+                "xmlns:wsp=\"http://www.w3.org/ns/ws-policy\" " +
+                "xmlns:wsu=\"http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd\" " +
+                "xmlns:foo=\"http://schemas.example.net/\">" +
+                "  <wsp:PolicyAttachment>" +
+                "    <wsp:AppliesTo>" +
+                "      <wsp:URI>urn:uuid:c9bef600-0d7a-11de-abc1-0002a5d5c51b</wsp:URI>" +
+                "    </wsp:WrongTag>" +
+                "    <wsp:Policy wsu:Id=\"binding-policy\">" +
+                "      <foo:TopLevelAssertion_1 />" +
+                "    </wsp:Policy>" +
+                "  </wsp:PolicyAttachment>" +
+                "</sunman:Policies>";
         final StringReader reader = new StringReader(policies);
         try {
             final Map<URI, Policy> result = ExternalAttachmentsUnmarshaller.unmarshal(reader);
