@@ -50,6 +50,7 @@ import com.sun.xml.ws.policy.privateutil.PolicyLogger;
  * @author Marek Potociar (marek.potociar@sun.com)
  */
 public abstract class PolicyMapMutator {
+    
     private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyMapMutator.class);
     
     private PolicyMap map = null;
@@ -67,7 +68,7 @@ public abstract class PolicyMapMutator {
      * @param map the policy map instance that will be mutable by this mutator.
      * @throws IllegalStateException in case this mutator object is already connected to a policy map.
      */
-    void connect(final PolicyMap map) {
+    public void connect(final PolicyMap map) {
         if (isConnected()) {
             throw LOGGER.logSevereException(new IllegalStateException(LocalizationMessages.WSP_0044_POLICY_MAP_MUTATOR_ALREADY_CONNECTED()));
         }

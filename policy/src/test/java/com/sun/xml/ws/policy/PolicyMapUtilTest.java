@@ -38,22 +38,17 @@
  * holder.
  */
 
-package com.sun.xml.ws.policy.util;
+package com.sun.xml.ws.policy;
 
-import com.sun.xml.ws.policy.Policy;
-import com.sun.xml.ws.policy.PolicyException;
-import com.sun.xml.ws.policy.PolicyMap;
-import com.sun.xml.ws.policy.PolicyMapExtender;
-import com.sun.xml.ws.policy.PolicyMapKey;
-import com.sun.xml.ws.policy.PolicyMapMutator;
-import com.sun.xml.ws.policy.PolicySubject;
 import com.sun.xml.ws.policy.sourcemodel.AssertionData;
 import com.sun.xml.ws.policy.sourcemodel.ModelNode;
 import com.sun.xml.ws.policy.sourcemodel.PolicyModelTranslator;
 import com.sun.xml.ws.policy.sourcemodel.PolicySourceModel;
 import com.sun.xml.ws.policy.sourcemodel.wspolicy.NamespaceVersion;
+
 import java.util.Arrays;
 import javax.xml.namespace.QName;
+
 import junit.framework.TestCase;
 
 /**
@@ -113,8 +108,4 @@ public class PolicyMapUtilTest extends TestCase {
         }
     }
 
-    public void testCreateInstance() {
-        PolicyMapUtil util = new PolicyMapUtil();
-        assertNotNull(util);
-    }
 }
