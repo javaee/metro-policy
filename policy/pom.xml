@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -43,27 +43,42 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <groupId>net.java</groupId>
+        <artifactId>jvnet-parent</artifactId>
+        <version>1</version>
+    </parent>
+
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.xml.ws</groupId>
     <artifactId>policy</artifactId>
-    <packaging>jar</packaging>
     <version>2.3-SNAPSHOT</version>
+    <packaging>jar</packaging>
+        
     <name>policy</name>
-    <url>https://policy.dev.java.net/</url>
+    <inceptionYear>2006</inceptionYear>
+    <description>WS-Policy implementation for Project Metro</description>
+    <url>http://policy.java.net/</url>
     
     <organization>
-        <name>Sun Microsystems, Inc.</name>
-        <url>http://www.sun.com/</url>
+        <name>Oracle Corporation</name>
+        <url>http://www.oracle.com/</url>
     </organization>
-    
+
     <licenses>
         <license>
             <name>Dual License: CDDL 1.0 and GPL V2 with Classpath Exception</name>
-            <url>https://glassfish.dev.java.net/public/CDDL+GPL.html</url>
+            <url>http://glassfish.java.net/public/CDDL+GPL_1_1.html</url>
             <distribution>repo</distribution>
         </license>
     </licenses>
-    
+
+    <scm>
+        <connection>scm:svn:https://svn.java.net/svn/policy~policy/trunk/policy</connection>
+        <developerConnection>scm:svn:https://svn.java.net/svn/policy~policy/trunk/policy</developerConnection>
+        <url>http://java.net/projects/policy/sources/policy/show/trunk/policy</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>javax.xml.stream</groupId>
@@ -80,7 +95,7 @@
         <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
-            <version>2.2.1</version>
+            <version>2.4</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -96,30 +111,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
-    <repositories>
-        <repository>
-            <id>maven2-repository.dev.java.net</id>
-            <name>Java.net Repository for Maven</name>
-            <url>http://download.java.net/maven/2/</url>
-            <layout>default</layout>
-        </repository>
-    </repositories>
-
-    <scm>
-        <connection>scm:cvs:pserver:guest@cvs.dev.java.net:/cvs:policy/policy</connection>
-        <developerConnection>scm:cvs:pserver:ritzmann@cvs.dev.java.net:/cvs:policy/policy</developerConnection>
-        <url>https://policy.dev.java.net/source/browse/policy/policy</url>
-    </scm>
-    
-    <distributionManagement>
-        <repository>
-            <uniqueVersion>false</uniqueVersion>
-            <id>java.net-maven2-repository</id>
-            <name>java.net-maven2-repository</name>
-            <url>java-net:/maven2-repository~svn/trunk/repository/</url> 
-        </repository>
-    </distributionManagement>
     
     <build>
         <finalName>${artifactId}</finalName>
@@ -216,31 +207,15 @@
                     </archive>
                 </configuration>
             </plugin>
-      
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-release-plugin</artifactId>
+                <configuration>
+                    <mavenExecutorId>forked-path</mavenExecutorId>
+                    <useReleaseProfile>false</useReleaseProfile>
+                    <arguments>${release.arguments}</arguments>
+                </configuration>
             </plugin>
 
             <plugin>
@@ -261,15 +236,8 @@
                     <findbugsXmlOutput>true</findbugsXmlOutput>
                 </configuration>
             </plugin>
-        </plugins>
-        
-        <extensions>
-            <extension>
-                <groupId>org.jvnet.wagon-svn</groupId>
-                <artifactId>wagon-svn</artifactId>
-                <version>1.12</version>
-            </extension>
-        </extensions>
+        </plugins>        
+
     </build>
     
     <reporting>
