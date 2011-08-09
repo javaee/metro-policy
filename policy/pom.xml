@@ -89,7 +89,7 @@
         <dependency>
             <groupId>com.sun.xml.txw2</groupId>
             <artifactId>txw2</artifactId>
-            <version>20090102</version>
+            <version>20110809</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -153,7 +153,7 @@
                     <dependency>
                         <groupId>com.sun.istack</groupId>
                         <artifactId>istack-commons-buildtools</artifactId>
-                        <version>1.1-SNAPSHOT</version>
+                        <version>2.4</version>
                     </dependency>
                 </dependencies>
                 <executions>
