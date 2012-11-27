@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -49,6 +49,7 @@ import com.sun.xml.ws.policy.subject.WsdlBindingSubject;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map.Entry;
 import javax.xml.namespace.QName;
 
 /**
@@ -117,17 +118,17 @@ public class PolicyMapUtil {
         }
 
         final PolicyMapKeyConverter converter = new PolicyMapKeyConverter(serviceName, portName);
-        for (WsdlBindingSubject wsdlSubject : subjectToPolicies.keySet()) {
-            final PolicySubject newSubject = new PolicySubject(wsdlSubject, subjectToPolicies.get(wsdlSubject));
+        for (Entry<WsdlBindingSubject, Collection<Policy>> entry : subjectToPolicies.entrySet()) {
+            WsdlBindingSubject wsdlSubject = entry.getKey();
+            Collection<Policy> policySet = entry.getValue();
+            final PolicySubject newSubject = new PolicySubject(wsdlSubject, policySet);
             PolicyMapKey mapKey = converter.getPolicyMapKey(wsdlSubject);
 
             if (wsdlSubject.isBindingSubject()) {
                 policyMap.putSubject(ScopeType.ENDPOINT, mapKey, newSubject);
-            }
-            else if (wsdlSubject.isBindingOperationSubject()) {
+            } else if (wsdlSubject.isBindingOperationSubject()) {
                 policyMap.putSubject(ScopeType.OPERATION, mapKey, newSubject);
-            }
-            else if (wsdlSubject.isBindingMessageSubject()) {
+            } else if (wsdlSubject.isBindingMessageSubject()) {
                 switch (wsdlSubject.getMessageType()) {
                     case INPUT:
                         policyMap.putSubject(ScopeType.INPUT_MESSAGE, mapKey, newSubject);
@@ -137,6 +138,8 @@ public class PolicyMapUtil {
                         break;
                     case FAULT:
                         policyMap.putSubject(ScopeType.FAULT_MESSAGE, mapKey, newSubject);
+                        break;
+                    default: 
                         break;
                 }
             }
