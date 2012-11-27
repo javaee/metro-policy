@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -54,6 +54,7 @@ import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.logging.Level;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -215,6 +216,7 @@ public final class PolicyUtils {
     }
     
     public static class Collections {
+        private static final PolicyLogger LOGGER = PolicyLogger.getLogger(PolicyUtils.Collections.class);
         /**
          * TODO javadocs
          *
@@ -260,7 +262,10 @@ public final class PolicyUtils {
                 } else if (optionSize == 1) {
                     base.addAll(option);
                 } else {
-                    optionProcessingQueue.offer(option);
+                    boolean entered = optionProcessingQueue.offer(option);
+                    if (!entered) {
+                        throw LOGGER.logException(new RuntimePolicyUtilsException(LocalizationMessages.WSP_0096_ERROR_WHILE_COMBINE(option)), false, Level.WARNING);
+                    }
                     finalCombinationsSize *= optionSize;
                 }
             }
