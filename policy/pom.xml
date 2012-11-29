@@ -252,8 +252,8 @@
                         <format>xml</format>
                     </formats>
                     <check>
-                      <totalLineRate>75</totalLineRate>
-                      <packageLineRate>75</packageLineRate>
+                      <totalLineRate>70</totalLineRate>
+                      <packageLineRate>50</packageLineRate>
                       <haltOnFailure>false</haltOnFailure>
                     </check>
                 </configuration>
