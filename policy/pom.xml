@@ -254,7 +254,7 @@
                     <check>
                       <totalLineRate>70</totalLineRate>
                       <packageLineRate>50</packageLineRate>
-                      <haltOnFailure>false</haltOnFailure>
+                      <haltOnFailure>true</haltOnFailure>
                     </check>
                 </configuration>
             </plugin>
