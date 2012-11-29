@@ -251,6 +251,12 @@
                     <formats>
                         <format>xml</format>
                     </formats>
+                    <check>
+                      <lineRate>75</lineRate>
+                      <totalLineRate>75</totalLineRate>
+                      <packageLineRate>75</packageLineRate>
+                      <haltOnFailure>false</haltOnFailure>
+                    </check>
                 </configuration>
             </plugin>
 
