@@ -3,7 +3,7 @@
 
     DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
 
-    Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
 
     The contents of this file are subject to the terms of either the GNU
     General Public License Version 2 only ("GPL") or the Common Development
@@ -195,7 +195,16 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
-                <version>1.0</version>
+                <version>1.1</version>
+                <configuration>
+                    <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+                    <timestampFormat>{0,date,yyyy-MM-dd'T'HH:mm:ssZ}</timestampFormat>
+                    <providerImplementations>
+                        <svn>javasvn</svn>
+                    </providerImplementations>
+                    <getRevisionOnlyOnce>true</getRevisionOnlyOnce>
+                    <revisionOnScmFailure>false</revisionOnScmFailure>
+                </configuration>
                 <executions>
                     <execution>
                         <phase>validate</phase>
@@ -204,16 +213,15 @@
                         </goals>
                     </execution>
                 </executions>
-                <configuration>
-                    <doCheck>false</doCheck>
-                    <doUpdate>true</doUpdate>
-                    <timestampFormat>{0,date,yyyy-MM-dd_HH-mm-ss}</timestampFormat>
-                    <items>
-                        <item>timestamp</item>
-                    </items>
-                </configuration>
-            </plugin>
-            
+                <dependencies>
+                    <dependency>
+                        <groupId>org.tmatesoft.svnkit</groupId>
+                        <artifactId>svnkit</artifactId>
+                        <version>1.7.4-v1</version>
+                    </dependency>
+                </dependencies>
+            </plugin>                
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -224,9 +232,7 @@
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                         </manifest>
                         <manifestEntries>
-                            <Build-Id>${timestamp}</Build-Id>
-                            <Build-Tag>${scmBranch}</Build-Tag>
-                            <SCM-Revision>${buildNumber}</SCM-Revision>                                                        
+                            <Implementation-Build-Id>${scmBranch}-${buildNumber}, ${timestamp}</Implementation-Build-Id>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -296,7 +302,20 @@
                     <retryFailedDeploymentCount>10</retryFailedDeploymentCount>
                 </configuration>
             </plugin>
-                        
+
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.1</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <!-- The Base URL of Nexus instance where we want to stage -->
+                    <nexusUrl>https://maven.java.net/content/repositories/</nexusUrl>
+                    <!-- The server "id" element from settings to use authentication from -->
+                    <serverId>jvnet-nexus-staging</serverId>
+                </configuration>
+            </plugin>
+
         </plugins>        
 
     </build>
