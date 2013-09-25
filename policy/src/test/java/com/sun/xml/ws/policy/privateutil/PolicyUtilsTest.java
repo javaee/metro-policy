@@ -266,7 +266,7 @@ public class PolicyUtilsTest extends TestCase {
      * Test of invoke method, of class com.sun.xml.ws.policy.privateutil.PolicyUtils.Reflection.
      */
     public void testReflectionInvoke() {
-        final Object target = new Object() { public String hum() { return "hum"; } };
+        final Object target = new NamedObject();
         final String result = PolicyUtils.Reflection.invoke(target, "hum", String.class, null, null);
         assertEquals("hum", result);
     }
@@ -344,6 +344,10 @@ public class PolicyUtilsTest extends TestCase {
             return isClosed;
         }
 
+    }
+
+    public static class NamedObject {
+        public String hum() { return "hum"; };
     }
 
 }
