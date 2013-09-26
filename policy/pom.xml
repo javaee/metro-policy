@@ -123,7 +123,28 @@
                 </includes>
             </resource>
         </resources>
-        
+
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.glassfish.build</groupId>
+                    <artifactId>gfnexus-maven-plugin</artifactId>
+                    <version>0.16</version>
+                    <configuration>
+                                            <nexusRepoUrl>https://maven.java.net/</nexusRepoUrl>
+                                            <nexusRepoId>jvnet-nexus-staging</nexusRepoId>
+                        <stagingRepos>
+                            <stagingRepo>
+                                <ref>com.sun.xml.ws:rt:${project.version}:jar</ref>
+                                <profile>javax.jws</profile>
+                            </stagingRepo>
+                        </stagingRepos>
+                        <promotionProfile>metro</promotionProfile>
+                        <message>JAX-WS_${project.version}</message>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -319,16 +340,8 @@
             </plugin>
 
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.1</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <!-- The Base URL of Nexus instance where we want to stage -->
-                    <nexusUrl>https://maven.java.net/content/repositories/</nexusUrl>
-                    <!-- The server "id" element from settings to use authentication from -->
-                    <serverId>jvnet-nexus-staging</serverId>
-                </configuration>
+                <groupId>org.glassfish.build</groupId>
+                <artifactId>gfnexus-maven-plugin</artifactId>
             </plugin>
 
         </plugins>        
