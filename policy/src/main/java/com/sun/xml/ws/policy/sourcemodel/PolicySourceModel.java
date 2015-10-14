@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2012 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -314,7 +314,7 @@ public class PolicySourceModel implements Cloneable {
      * Every source model that references other policies must be expanded before it can be translated into a Policy objects. See
      * {@link #expand(PolicySourceModelContext)} and {@link #isExpanded()} for more details.
      *
-     * @return {@code true} or {code false} depending on whether this policy source model contains references to another policy source models.
+     * @return {@code true} or {@code false} depending on whether this policy source model contains references to another policy source models.
      */
     public boolean containsPolicyReferences() {
         return !references.isEmpty();

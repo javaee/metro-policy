@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 1997-2013 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-2015 Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -416,7 +416,7 @@ public final class PolicyUtils {
          * <p/>
          * <p> This method transforms the name of the given service class into a
          * provider-configuration filename as described above and then uses the
-         * <tt>getResources</tt> method of the given class loader to find all
+         * {@code getResources} method of the given class loader to find all
          * available files with that name.  These files are then read and parsed to
          * produce a list of provider-class names. Eventually each provider class is
          * instantiated and array of those instances is returned.
@@ -427,7 +427,7 @@ public final class PolicyUtils {
          *
          * @param serviceClass The service's abstract service class. Must not be {@code null}.
          * @param loader  The class loader to be used to load provider-configuration files
-         *                and instantiate provider classes, or <tt>null</tt> if the system
+         *                and instantiate provider classes, or {@code null} if the system
          *                class loader (or, failing that the bootstrap class loader) is to
          *                be used
          * @throws NullPointerException in case {@code service} input parameter is {@code null}.
