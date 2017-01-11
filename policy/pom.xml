@@ -344,12 +344,6 @@
                 <artifactId>gfnexus-maven-plugin</artifactId>
             </plugin>
 
-        </plugins>        
-
-    </build>
-
-    <reporting>
-        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -358,6 +352,13 @@
                     <additionalparam>-Xdoclint:none</additionalparam>
                 </configuration>
             </plugin>
+
+        </plugins>        
+
+    </build>
+
+    <reporting>
+        <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-report-plugin</artifactId>
