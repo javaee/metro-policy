@@ -53,12 +53,12 @@
     <artifactId>policy</artifactId>
     <version>2.7.2-SNAPSHOT</version>
     <packaging>jar</packaging>
-        
+
     <name>policy</name>
     <inceptionYear>2006</inceptionYear>
     <description>WS-Policy implementation for Project Metro</description>
     <url>http://policy.java.net/</url>
-    
+
     <organization>
         <name>Oracle Corporation</name>
         <url>http://www.oracle.com/</url>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
-            <version>2.4</version>
+            <version>${istack.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -110,19 +110,9 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-    
+
     <build>
         <finalName>${project.artifactId}</finalName>
-
-        <resources>
-            <resource>
-                <filtering>false</filtering>
-                <directory>${basedir}/src/main/java</directory>
-                <includes>
-                    <include>**/*.properties</include>
-                </includes>
-            </resource>
-        </resources>
 
         <pluginManagement>
             <plugins>
@@ -131,8 +121,8 @@
                     <artifactId>gfnexus-maven-plugin</artifactId>
                     <version>0.16</version>
                     <configuration>
-                                            <nexusRepoUrl>https://maven.java.net/</nexusRepoUrl>
-                                            <nexusRepoId>jvnet-nexus-staging</nexusRepoId>
+                        <nexusRepoUrl>https://maven.java.net/</nexusRepoUrl>
+                        <nexusRepoId>jvnet-nexus-staging</nexusRepoId>
                         <stagingRepos>
                             <stagingRepo>
                                 <ref>com.sun.xml.ws:rt:${project.version}:jar</ref>
@@ -158,7 +148,7 @@
                     </compilerArguments>
                 </configuration>
             </plugin>
-            
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -169,36 +159,25 @@
             </plugin>
 
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.sun.istack</groupId>
-                        <artifactId>istack-commons-buildtools</artifactId>
-                        <version>2.4</version>
-                    </dependency>
-                </dependencies>
+                <groupId>com.sun.istack</groupId>
+                <artifactId>istack-commons-maven-plugin</artifactId>
+                <version>${istack.version}</version>
                 <executions>
                     <execution>
-                        <phase>generate-sources</phase>
-                        <configuration>
-                            <tasks>
-                                <taskdef name="resgen" classname="com.sun.istack.build.ResourceGenTask">
-                                    <classpath refid="maven.compile.classpath" />
-                                </taskdef>
-
-                                <mkdir dir="${project.build.directory}/generated-sources/ant" />
-
-                                <resgen destdir="${project.build.directory}/generated-sources/ant">
-                                    <resource dir="${basedir}/src/main/java" includes="com/sun/xml/ws/policy/privateutil/**/*.properties" />
-                                </resgen>
-                            </tasks>
-                            <sourceRoot>
-                                ${project.build.directory}/generated-sources/ant
-                            </sourceRoot>
-                        </configuration>
+                        <id>rs-gen</id>
                         <goals>
-                            <goal>run</goal>
+                            <goal>rs-gen</goal>
                         </goals>
+                        <configuration>
+                            <resources>
+                                <directory>${project.basedir}/src/main/resources</directory>
+                                <includes>
+                                    <include>**/*.properties</include>
+                                </includes>
+                            </resources>
+                            <destDir>${project.build.directory}/generated-sources/rsrc-gen</destDir>
+                            <license>${project.basedir}/Licenses/CDDL+GPLv2.xml</license>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
@@ -241,7 +220,7 @@
                         <version>1.7.4-v1</version>
                     </dependency>
                 </dependencies>
-            </plugin>                
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -283,9 +262,9 @@
                         <format>xml</format>
                     </formats>
                     <check>
-                      <totalLineRate>70</totalLineRate>
-                      <packageLineRate>50</packageLineRate>
-                      <haltOnFailure>true</haltOnFailure>
+                        <totalLineRate>70</totalLineRate>
+                        <packageLineRate>50</packageLineRate>
+                        <haltOnFailure>true</haltOnFailure>
                     </check>
                 </configuration>
             </plugin>
@@ -301,7 +280,7 @@
                         exclude-common.xml,${findbugs.exclude}
                     </excludeFilterFile>
                     <fork>true</fork>
-                    <jvmArgs>-Xms64m -Xmx256m</jvmArgs>    
+                    <jvmArgs>-Xms64m -Xmx256m</jvmArgs>
                 </configuration>
                 <dependencies>
                     <dependency>
@@ -353,7 +332,7 @@
                 </configuration>
             </plugin>
 
-        </plugins>        
+        </plugins>
 
     </build>
 
@@ -379,12 +358,13 @@
                 <artifactId>findbugs-maven-plugin</artifactId>
                 <version>3.0.4</version>
             </plugin>
-    	</plugins>
+        </plugins>
     </reporting>
 
     <properties>
         <netbeans.hint.license>policy</netbeans.hint.license>
         <findbugs.exclude>exclude.xml</findbugs.exclude>
         <findbugs.threshold>Low</findbugs.threshold>
+        <istack.version>3.0.4</istack.version>
     </properties>
 </project>
