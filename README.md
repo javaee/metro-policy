@@ -1,7 +1,6 @@
 # About
 
-Welcome to the metro-policy project.
-
+Subproject of Metro: The WS-Policy implementation for the Metro Web Services stack
 
 
 # IMPORTANT!
