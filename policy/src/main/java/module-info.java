@@ -46,8 +46,8 @@ module com.sun.xml.ws.policy {
     requires java.xml.ws.annotation;
     requires transitive java.xml;
     requires com.sun.istack.runtime;
-    requires jaxb.txw2;
     requires java.logging;
+    requires com.sun.xml.txw2;
 
     exports com.sun.xml.ws.policy;
     exports com.sun.xml.ws.policy.privateutil;
