@@ -73,9 +73,10 @@
     </licenses>
 
     <scm>
-        <connection>scm:svn:https://svn.java.net/svn/policy~policy/tags/policy-2.7.1</connection>
-        <developerConnection>scm:svn:https://svn.java.net/svn/policy~policy/tags/policy-2.7.1</developerConnection>
-        <url>http://java.net/projects/policy/sources/policy/show/tags/policy-2.7.1</url>
+        <connection>scm:git:git@github.com:javaee/metro-policy.git</connection>
+        <developerConnection>scm:git:git@github.com:javaee/metro-policy.git</developerConnection>
+        <url>https://github.com/javaee/metro-policy</url>
+        <tag>HEAD</tag>
     </scm>
 
     <pluginRepositories>
@@ -94,15 +95,9 @@
 
     <dependencies>
         <dependency>
-            <groupId>javax.xml.stream</groupId>
-            <artifactId>stax-api</artifactId>
-            <version>1.0-2</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jaxb</groupId>
             <artifactId>txw2</artifactId>
-            <version>2.3.1-b171222.1541</version>
+            <version>2.4.0-b180608.0325</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -114,13 +109,13 @@
         <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-asl</artifactId>
-            <version>4.1.1</version>
+            <version>4.4.1</version>
             <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>3.8.1</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

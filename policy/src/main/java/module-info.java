@@ -43,14 +43,15 @@
  */
 module com.sun.xml.ws.policy {
     requires transitive java.activation;
-    requires java.xml.ws.annotation;
+    requires java.xml.ws;
     requires transitive java.xml;
     requires com.sun.istack.runtime;
     requires java.logging;
     requires com.sun.xml.txw2;
 
-    exports com.sun.xml.ws.policy;
+    exports com.sun.xml.ws.policy.sourcemodel.wspolicy;
     exports com.sun.xml.ws.policy.privateutil;
+    exports com.sun.xml.ws.policy;
     exports com.sun.xml.ws.policy.sourcemodel;
     exports com.sun.xml.ws.policy.spi;
     exports com.sun.xml.ws.policy.subject;
