@@ -1,7 +1,7 @@
 /* 
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  * 
- * Copyright (c) 2017 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2017-2018 Oracle and/or its affiliates. All rights reserved.
  * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -43,11 +43,11 @@
  */
 module com.sun.xml.ws.policy {
     requires transitive java.activation;
-    requires java.xml.ws;
     requires transitive java.xml;
     requires com.sun.istack.runtime;
     requires java.logging;
     requires com.sun.xml.txw2;
+    requires java.annotation;
 
     exports com.sun.xml.ws.policy.sourcemodel.wspolicy;
     exports com.sun.xml.ws.policy.privateutil;
