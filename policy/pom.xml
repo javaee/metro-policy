@@ -51,7 +51,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.sun.xml.ws</groupId>
     <artifactId>policy</artifactId>
-    <version>2.7.4-SNAPSHOT</version>
+    <version>2.7.4</version>
     <packaging>jar</packaging>
 
     <name>policy</name>
